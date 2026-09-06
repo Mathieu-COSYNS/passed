@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/css/pico.min.css">
+  <link rel="stylesheet" href="/css/main.css">
+
+  <script src="/js/lang.js"></script>
+  <script src="/js/backend.js"></script>
+  <script src="/js/crypto.js"></script>
+  <script src="/js/main.js"></script>
+
+  <title>PassED</title>
+</head>
+
+<body>
+  <nav class="container">
+    <ul>
+      <li>
+        <strong>PassED</strong>
+      </li>
+    </ul>
+
+    <ul>
+      <li>
+        <a href="https://git.1e99.eu/1e99/passed" t="source"></a>
+      </li>
+
+      <li>
+        <details class="dropdown">
+          <summary t="language"></summary>
+          <ul dir="rtl">
+            <li class="select-lang" data-lang="de">Deutsch</li>
+            <li class="select-lang" data-lang="en">English</li>
+          </ul>
+        </details>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <article id="loading" class="hidden" aria-busy="true">
+    </article>
+
+    <article id="not-found" class="hidden">
+      <header t="not-found"></header>
+
+      <p t="not-found-reasons"></p>
+
+      <button id="not-found-ok" t="ok"></button>
+    </article>
+
+    <article id="confirm" class="hidden">
+      <header t="reveal-password"></header>
+
+      <p t="reveal-password-once"></p>
+
+      <button id="confirm-no" class="secondary" t="no"></button>
+      <button id="confirm-yes" t="yes"></button>
+    </article>
+
+    <article id="view" class="hidden">
+      <p t="password"></p>
+
+      <textarea id="view-password"></textarea>
+
+      <button id="view-ok" t="ok"></button>
+    </article>
+
+    <article id="share" class="hidden">
+      <header t="share-password"></header>
+
+      <form id="share-form">
+        <fieldset id="share-fieldset">
+          <label>
+            <span t="password"></span>
+            <textarea name="password" id="share-password"></textarea>
+          </label>
+
+          <label>
+            <span t="expires-in"></span>
+            <select name="expires-in">
+              <option value="3600" t="1-hour"></option>
+              <option value="43200" t="12-hours"></option>
+              <option value="86400" t="1-day" selected></option>
+              <option value="172800" t="2-days"></option>
+              <option value="604800" t="1-week"></option>
+              <option value="1209600" t="2-weeks"></option>
+            </select>
+          </label>
+
+          <button type="submit" id="share-submit" t="share"></button>
+          <span>
+            <span t="dont-have-a-password"></span>
+            <a class="contrast" t="generate-one" id="share-generate"></a>
+          </span>
+        </fieldset>
+      </form>
+    </article>
+  </main>
+
+  <dialog id="share-dialog">
+    <article>
+      <header>
+        <button rel="prev" id="share-close"></button>
+        <p t="share-link"></p>
+      </header>
+
+      <fieldset role="group">
+        <input type="text" readonly id="share-link">
+        <button id="share-copy" t="copy"></button>
+      </fieldset>
+    </article>
+  </dialog>
+
+  <dialog id="error">
+    <article>
+      <header>
+        <button rel="prev" id="error-close"></button>
+        <p t="error"></p>
+      </header>
+
+      <p id="error-error"></p>
+    </article>
+  </dialog>
+</body>
+
+</html>

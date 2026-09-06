@@ -1,0 +1,35 @@
+{
+  "name": "passed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Share a password with a one-time URL. Client-side AES-GCM, Nitro backend.",
+  "license": "MPL-2.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "nitro prepare",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@redis/client": "^6.2.1",
+    "@t3-oss/env-core": "^0.13.11",
+    "@upstash/redis": "^1.38.4",
+    "nitro": "3.0.260610-beta",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "nitro-test-utils": "^3.0.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.25.0+sha512.5cde925b4f075f725eb71fbae18a42ffe784524789f19b61c731cb8721ec28aaee160e01a8d5af4fedb2a42cdbf300efe23db356b0d4a17b4d63e11f8ab7c956"
+}

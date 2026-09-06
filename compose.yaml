@@ -1,0 +1,30 @@
+# Local development. Redis is bound to 127.0.0.1 with no AUTH.
+# For production, require AUTH (and TLS if the link is not private) or use managed Redis / Upstash.
+services:
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    command:
+      - redis-server
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - noeviction
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+  passed:
+    build: .
+    ports:
+      - "80:3000"
+    environment:
+      PASSED_STORE_TYPE: redis
+      PASSED_STORE_REDIS_URL: redis://redis:6379
+      PASSED_MAX_LENGTH: "12288"
+      PASSED_MAX_SECRETS: "4096"
+    depends_on:
+      redis:
+        condition: service_healthy
