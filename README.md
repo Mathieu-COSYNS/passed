@@ -39,18 +39,16 @@ As the website relies on the [Web Crypto API](https://developer.mozilla.org/en-U
 
 Environment variables are validated at build time or startup time. Copy `.env.example` or set them in the process environment.
 
-| Variable                     | Default                  | Notes                                                                                                                                           |
-| ---------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PASSED_MAX_LENGTH`          | `12288`                  | Maximum ciphertext length in bytes (characters of the uploaded Base64 string).                                                                  |
-| `PASSED_MAX_SECRETS`         | `4096`                   | Maximum live shares. Set `0` to **opt in** to unlimited. `POST /api/password` returns 507 when full.                                            |
-| `PASSED_STORE_TYPE`          | `redis`                  | `redis` or `upstash`                                                                                                                            |
-| `PASSED_STORE_REDIS_URL`     | `redis://127.0.0.1:6379` | Redis 8+ URL when `PASSED_STORE_TYPE=redis`. Falls back to `REDIS_URL`. Use AUTH (`redis://:password@host`) or TLS (`rediss://`) in production. |
-| `REDIS_URL`                  | —                        | Fallback Redis URL when `PASSED_STORE_REDIS_URL` is unset.                                                                                      |
-| `PASSED_STORE_UPSTASH_URL`   | —                        | Upstash REST URL. Required when `PASSED_STORE_TYPE=upstash`. Falls back to `UPSTASH_REDIS_REST_URL`.                                            |
-| `PASSED_STORE_UPSTASH_TOKEN` | —                        | Upstash REST token. Required when `PASSED_STORE_TYPE=upstash`. Falls back to `UPSTASH_REDIS_REST_TOKEN`.                                        |
-| `UPSTASH_REDIS_REST_URL`     | —                        | Fallback Upstash REST URL when `PASSED_STORE_UPSTASH_URL` is unset.                                                                             |
-| `UPSTASH_REDIS_REST_TOKEN`   | —                        | Fallback Upstash REST token when `PASSED_STORE_UPSTASH_TOKEN` is unset.                                                                         |
-| `PORT` / `NITRO_PORT`        | `3000`                   | Listen port.                                                                                                                                    |
+| Variable                                    | Default                  | Notes                                                                                                                                |
+| ------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `PASSED_MAX_LENGTH`                         | `12288`                  | Maximum ciphertext length in bytes (characters of the uploaded Base64 string).                                                       |
+| `PASSED_MAX_SECRETS`                        | `4096`                   | Maximum live shares. Set `0` to **opt in** to unlimited. `POST /api/password` returns 507 when full.                                 |
+| `PASSED_STORE_TYPE`                         | `redis`                  | `redis` or `upstash`                                                                                                                 |
+| `PASSED_STORE_REDIS_URL`<br/>or `REDIS_URL` | `redis://127.0.0.1:6379` | Redis 8+ URL when `PASSED_STORE_TYPE=redis`. First set wins. Use AUTH (`redis://:password@host`) or TLS (`rediss://`) in production. |
+
+| `PASSED_STORE_UPSTASH_URL`<br/>or `UPSTASH_REDIS_REST_URL`<br/>or `KV_REST_API_URL` | — | Upstash REST URL when `PASSED_STORE_TYPE=upstash`. First set wins. |
+| `PASSED_STORE_UPSTASH_TOKEN`<br/>or `UPSTASH_REDIS_REST_TOKEN`<br/>or `KV_REST_API_TOKEN` | — | Upstash REST token when `PASSED_STORE_TYPE=upstash`. First set wins. |
+| `PORT` / `NITRO_PORT` | `3000` | Listen port. |
 
 Unlimited live shares is opt-in. Set `PASSED_MAX_SECRETS=0` only if you accept unbounded Redis growth. Public or production instances should keep a finite cap (the default) or put a rate limit in front of `POST /api/password`.
 

@@ -28,6 +28,8 @@ export const createPassedEnv = (
       PASSED_STORE_UPSTASH_TOKEN: z.string().min(1).optional(),
       UPSTASH_REDIS_REST_URL: z.string().min(1).optional(),
       UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+      KV_REST_API_URL: z.string().min(1).optional(),
+      KV_REST_API_TOKEN: z.string().min(1).optional(),
       PORT: z.coerce.number().int().positive().default(3000),
       NITRO_PORT: z.coerce.number().int().positive().optional(),
     },
@@ -57,15 +59,19 @@ export const createPassedEnv = (
             };
           case "upstash": {
             const url =
-              data.PASSED_STORE_UPSTASH_URL ?? data.UPSTASH_REDIS_REST_URL;
+              data.PASSED_STORE_UPSTASH_URL ??
+              data.UPSTASH_REDIS_REST_URL ??
+              data.KV_REST_API_URL;
             const token =
-              data.PASSED_STORE_UPSTASH_TOKEN ?? data.UPSTASH_REDIS_REST_TOKEN;
+              data.PASSED_STORE_UPSTASH_TOKEN ??
+              data.UPSTASH_REDIS_REST_TOKEN ??
+              data.KV_REST_API_TOKEN;
             if (!url) {
               ctx.addIssue({
                 code: "custom",
                 path: ["PASSED_STORE_UPSTASH_URL"],
                 message:
-                  "PASSED_STORE_UPSTASH_URL or UPSTASH_REDIS_REST_URL is required when PASSED_STORE_TYPE=upstash",
+                  "PASSED_STORE_UPSTASH_URL, UPSTASH_REDIS_REST_URL, or KV_REST_API_URL is required when PASSED_STORE_TYPE=upstash",
               });
             }
             if (!token) {
@@ -73,7 +79,7 @@ export const createPassedEnv = (
                 code: "custom",
                 path: ["PASSED_STORE_UPSTASH_TOKEN"],
                 message:
-                  "PASSED_STORE_UPSTASH_TOKEN or UPSTASH_REDIS_REST_TOKEN is required when PASSED_STORE_TYPE=upstash",
+                  "PASSED_STORE_UPSTASH_TOKEN, UPSTASH_REDIS_REST_TOKEN, or KV_REST_API_TOKEN is required when PASSED_STORE_TYPE=upstash",
               });
             }
             if (!url || !token) {

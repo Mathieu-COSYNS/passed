@@ -30,7 +30,7 @@ describe("store env validation", () => {
 
   it("rejects upstash without URL and token", () => {
     expect(() => createPassedEnv({ PASSED_STORE_TYPE: "upstash" })).toThrow(
-      /PASSED_STORE_UPSTASH_URL or UPSTASH_REDIS_REST_URL.*PASSED_STORE_UPSTASH_TOKEN or UPSTASH_REDIS_REST_TOKEN/,
+      /PASSED_STORE_UPSTASH_URL, UPSTASH_REDIS_REST_URL, or KV_REST_API_URL.*PASSED_STORE_UPSTASH_TOKEN, UPSTASH_REDIS_REST_TOKEN, or KV_REST_API_TOKEN/,
     );
   });
 
@@ -40,7 +40,9 @@ describe("store env validation", () => {
         PASSED_STORE_TYPE: "upstash",
         PASSED_STORE_UPSTASH_TOKEN: "token",
       }),
-    ).toThrow(/PASSED_STORE_UPSTASH_URL or UPSTASH_REDIS_REST_URL/);
+    ).toThrow(
+      /PASSED_STORE_UPSTASH_URL, UPSTASH_REDIS_REST_URL, or KV_REST_API_URL/,
+    );
   });
 
   it("rejects upstash without PASSED_STORE_UPSTASH_TOKEN", () => {
@@ -49,7 +51,9 @@ describe("store env validation", () => {
         PASSED_STORE_TYPE: "upstash",
         PASSED_STORE_UPSTASH_URL: "https://example.upstash.io",
       }),
-    ).toThrow(/PASSED_STORE_UPSTASH_TOKEN or UPSTASH_REDIS_REST_TOKEN/);
+    ).toThrow(
+      /PASSED_STORE_UPSTASH_TOKEN, UPSTASH_REDIS_REST_TOKEN, or KV_REST_API_TOKEN/,
+    );
   });
 
   it("accepts redis when PASSED_STORE_REDIS_URL is set", () => {
@@ -137,6 +141,47 @@ describe("store env validation", () => {
       type: "upstash",
       url: "https://passed.upstash.io",
       token: "passed-token",
+    });
+  });
+
+  it("falls back to KV_REST_API_* when PASSED_STORE_UPSTASH_* and UPSTASH_REDIS_REST_* are unset", () => {
+    const env = createPassedEnv({
+      PASSED_STORE_TYPE: "upstash",
+      KV_REST_API_URL: "https://kv.upstash.io",
+      KV_REST_API_TOKEN: "kv-token",
+    });
+    expect(env.store).toEqual({
+      type: "upstash",
+      url: "https://kv.upstash.io",
+      token: "kv-token",
+    });
+  });
+
+  it("prefers UPSTASH_REDIS_REST_* over KV_REST_API_*", () => {
+    const env = createPassedEnv({
+      PASSED_STORE_TYPE: "upstash",
+      UPSTASH_REDIS_REST_URL: "https://fallback.upstash.io",
+      UPSTASH_REDIS_REST_TOKEN: "rest-token",
+      KV_REST_API_URL: "https://kv.upstash.io",
+      KV_REST_API_TOKEN: "kv-token",
+    });
+    expect(env.store).toEqual({
+      type: "upstash",
+      url: "https://fallback.upstash.io",
+      token: "rest-token",
+    });
+  });
+
+  it("mixes UPSTASH_REDIS_REST_* with KV_REST_API_* fallbacks", () => {
+    const env = createPassedEnv({
+      PASSED_STORE_TYPE: "upstash",
+      UPSTASH_REDIS_REST_URL: "https://fallback.upstash.io",
+      KV_REST_API_TOKEN: "kv-token",
+    });
+    expect(env.store).toEqual({
+      type: "upstash",
+      url: "https://fallback.upstash.io",
+      token: "kv-token",
     });
   });
 });
