@@ -14,7 +14,7 @@ PassED solves this issue by allowing you to generate **single-use URL** with you
 
 The original [1e99/passed](https://git.1e99.eu/1e99/passed) repository currently appears to be down ([web archive](https://web.archive.org/web/20251118132530/https://git.1e99.eu/1e99/passed)). This TypeScript [Nitro](https://nitro.build) reimplementation was created to continue the idea.
 
-It is written in TypeScript so you can run it on serverless platforms such as [Vercel](https://vercel.com), [Cloudflare](https://www.cloudflare.com), and [Netlify](https://www.netlify.com).
+It is written in TypeScript so you can run it on serverless platforms such as [Vercel](#deploy-on-vercel), [Cloudflare](https://www.cloudflare.com), and [Netlify](https://www.netlify.com).
 
 ## How it works
 
@@ -51,6 +51,24 @@ Environment variables are validated at build time or startup time. Copy `.env.ex
 | `PORT` / `NITRO_PORT` | `3000` | Listen port. |
 
 Unlimited live shares is opt-in. Set `PASSED_MAX_SECRETS=0` only if you accept unbounded Redis growth. Public or production instances should keep a finite cap (the default) or put a rate limit in front of `POST /api/password`.
+
+## Deploy on Vercel
+
+Vercel is serverless, so use [Upstash](#upstash) (`PASSED_STORE_TYPE=upstash`), not Redis TCP. See the note under [Redis](#redis).
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMathieu-COSYNS%2Fpassed&repository-name=passed&env=PASSED_STORE_TYPE&envDefaults=%7B%22PASSED_STORE_TYPE%22%3A%22upstash%22%7D&project-name=passed&demo-title=Passed&demo-description=Share+a+password+with+a+one-time+URL&demo-url=https%3A%2F%2Fpassed-demo.vercel.app%2F&demo-image=https%3A%2F%2Fgithub.com%2FMathieu-COSYNS%2Fpassed%2Fraw%2Fmain%2Fdocs%2Fimages%2FPassED.png)
+
+The button clones this repository and sets `PASSED_STORE_TYPE=upstash`.
+
+### Connect Upstash Redis
+
+1. Open the new project in Vercel. Install [Upstash for Redis](https://vercel.com/marketplace/upstash/upstash-kv), or go to **Storage** and create or connect a database.
+1. Choose **Create New Upstash Account** (Vercel manages the database) or **Link Existing Upstash Account** (use one from the [Upstash Console](https://console.upstash.com)).
+1. Create or select a Redis database in a region close to your Vercel deployment. Keep eviction off unless you accept that secrets may disappear.
+1. Connect the database to this project. Vercel injects `KV_REST_API_URL` / `KV_REST_API_TOKEN` and/or `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`. PassED reads those names automatically ([Configuration](#configuration)).
+1. Redeploy so the variables are available at build time. The first deploy from the button can fail until the database is connected.
+
+You can instead paste REST credentials yourself in **Settings → Environment Variables**. After any env change, redeploy.
 
 ## Docker
 
