@@ -13,7 +13,7 @@ const g = globalThis as typeof globalThis & {
   __passedFlushRedis__?: boolean;
 };
 
-async function flushTestRedis(): Promise<void> {
+export async function flushTestRedis(): Promise<void> {
   const redis = createClient({ url: REDIS_URL });
   await redis.connect();
   try {
@@ -24,7 +24,7 @@ async function flushTestRedis(): Promise<void> {
 }
 
 // setupFiles re-run for every test file even with isolate: false.
-if (!g.__passedFlushRedis__) {
+if (process.env.VITEST && !g.__passedFlushRedis__) {
   g.__passedFlushRedis__ = true;
   beforeEach(async () => {
     await flushTestRedis();

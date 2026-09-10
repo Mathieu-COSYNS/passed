@@ -25,6 +25,7 @@ jobs:
     env:
       PASSED_STORE_TYPE: redis
       PASSED_STORE_REDIS_URL: redis://127.0.0.1:6379
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
     steps:
       - uses: actions/checkout@v7
       - name: Install pnpm and Node.js
@@ -32,6 +33,25 @@ jobs:
         with:
           runtime: node@${{ matrix.node }}
           cache: true
-      - run: pnpm test
+
+      - name: Get Playwright version
+        id: playwright-version
+        shell: bash
+        run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      # --with-deps only does anything on Linux (apt packages). On Windows it
+      # installs the Media Foundation feature (~3min, only needed for media
+      # playback), and on macOS it is a no-op.
+      - name: Install Playwright Dependencies
+        run: pnpm exec playwright install chromium ${{ runner.os == 'Linux' && '--with-deps' || '' }}
+
       - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm test:e2e
       - run: pnpm build

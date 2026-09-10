@@ -1,4 +1,8 @@
 node_modules
+.vitest
+.cache
+test-results
+playwright-report
 .output
 .nitro
 .vinxi

@@ -6,6 +6,7 @@ export default defineConfig(
     resolve: { tsconfigPaths: true },
     test: {
       dir: "./test",
+      exclude: ["**/e2e/**"],
       testTimeout: 15_000,
       env: {
         PASSED_MAX_SECRETS: String(TEST_MAX_SECRETS),
