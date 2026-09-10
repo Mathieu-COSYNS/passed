@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+          key: playwright-${{ runner.os }}-node${{ matrix.node }}-${{ steps.playwright-version.outputs.version }}
 
       # --with-deps only does anything on Linux (apt packages). On Windows it
       # installs the Media Foundation feature (~3min, only needed for media
