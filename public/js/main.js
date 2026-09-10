@@ -133,7 +133,7 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
       const encrypted = await backend.getPassword(id)
       const password = await crypto.decryptPassword(encrypted, key, iv)
 
-      viewPassword.innerText = password
+      viewPassword.value = password
       confirm.classList.add(hidden)
       view.classList.remove(hidden)
       window.location.hash = ""
