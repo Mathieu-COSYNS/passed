@@ -20,7 +20,7 @@ It is written in TypeScript so you can run it on serverless platforms such as [V
 
 When you share a password:
 
-1. The browser generates an AES-256-GCM key and a 16-byte IV.
+1. The browser generates an AES-256-GCM key and a 12-byte IV.
 2. The password is encrypted in the browser using the generated key (Web Crypto API).
 3. The encrypted password is uploaded to the server, which responds with an ID to uniquely identify the password.
 4. The server replies with an id. The share link keeps the key in the URL fragment: `#id:key:iv`.

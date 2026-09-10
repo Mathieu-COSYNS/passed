@@ -13,7 +13,7 @@ class PasswordCrypto {
 
     this.#algorithmName = "AES-GCM"
     this.#algorithmLength = 256
-    this.#ivLength = 16
+    this.#ivLength = 12
   }
 
   /**
