@@ -22,5 +22,7 @@
   "source": "Source",
   "language": "Language",
   "dont-have-a-password": "Don't have a password?",
-  "generate-one": "Generate one."
+  "generate-one": "Generate one.",
+  "password-required": "Password is required",
+  "expiry-invalid": "Expiry is invalid"
 }

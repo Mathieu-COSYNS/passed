@@ -1,5 +1,6 @@
 /**
- * Loads JSON translations and fills elements that have a `t` attribute.
+ * Loads JSON translations, fills elements that have a `t` attribute,
+ * and looks up keys from JavaScript via `t`.
  */
 class Language {
   #localStorageKey;
@@ -113,6 +114,22 @@ class Language {
    */
   getLanguage() {
     return this.#currentLanguage;
+  }
+
+  /**
+   * Translation for `key` in the current language, or `key` if it is missing
+   * or the language file cannot be loaded.
+   * @param {string} key
+   * @returns {Promise<string>}
+   */
+  async t(key) {
+    try {
+      const translations = await this.#loadTranslations(this.#currentLanguage);
+      return translations[key] ?? key;
+    } catch (err) {
+      console.error(err);
+      return key;
+    }
   }
 
   /**

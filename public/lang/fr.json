@@ -22,5 +22,7 @@
   "source": "Code source",
   "language": "Langue",
   "dont-have-a-password": "Vous n'avez pas de mot de passe ?",
-  "generate-one": "En générer un."
+  "generate-one": "En générer un.",
+  "password-required": "Le mot de passe est requis",
+  "expiry-invalid": "La durée d'expiration est invalide"
 }

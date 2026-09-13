@@ -3,8 +3,9 @@
  * @param {Backend} backend
  * @param {PasswordCrypto} crypto
  * @param {string} urlSplit
+ * @param {Language} language
  */
-function initShare(errorHandler, backend, crypto, urlSplit) {
+function initShare(errorHandler, backend, crypto, urlSplit, language) {
   const form = document.querySelector("form#share-form")
   const fieldset = document.querySelector("fieldset#share-fieldset")
   const submit = document.querySelector("button#share-submit")
@@ -25,12 +26,12 @@ function initShare(errorHandler, backend, crypto, urlSplit) {
 
       const plain = data.get("password")
       if (typeof plain != "string" || plain.length === 0) {
-        throw new Error("Password is required")
+        throw new Error(await language.t("password-required"))
       }
 
       const expiresIn = parseInt(data.get("expires-in"), 10)
       if (!Number.isInteger(expiresIn) || expiresIn <= 0) {
-        throw new Error("Expiry is invalid")
+        throw new Error(await language.t("expiry-invalid"))
       }
 
       const encrypted = await crypto.encryptPassword(plain)
@@ -209,7 +210,7 @@ function init() {
   const language = new Language()
   const urlSplit = ":"
 
-  initShare(handleError, backend, crypto, urlSplit)
+  initShare(handleError, backend, crypto, urlSplit, language)
   initView(handleError, backend, crypto, urlSplit, "hidden")
   initLanguage(language)
 }

@@ -43,3 +43,15 @@ test("invalid expiry is not posted as NaN", async ({ page }) => {
   await expect(page.locator("#error-error")).toContainText("Expiry is invalid");
   expect(bodies).toEqual([]);
 });
+
+test("empty password error follows the selected language", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+  await page.locator("#language").selectOption("de");
+  await expect(page.locator("#share-submit")).toHaveText("Teilen");
+  await page.locator("#share-submit").click();
+  await expect(page.locator("#error")).toBeVisible();
+  await expect(page.locator("#error-error")).toContainText(
+    "Passwort ist erforderlich",
+  );
+});
