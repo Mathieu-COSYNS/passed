@@ -103,27 +103,43 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
   const viewPassword = document.querySelector("textarea#view-password")
   const viewOk = document.querySelector("button#view-ok")
 
-  const hash = window.location.hash
-  if (hash == "" || hash == "#") {
-    share.classList.remove(hidden)
-    return
+  let id
+  let key
+  let iv
+
+  function hideAll() {
+    share.classList.add(hidden)
+    loading.classList.add(hidden)
+    confirm.classList.add(hidden)
+    notFound.classList.add(hidden)
+    view.classList.add(hidden)
   }
 
-  const raw = hash.substring(1)
-  const [id, key, iv] = raw.split(urlSplit)
+  function showShare() {
+    hideAll()
+    viewPassword.value = ""
+    share.classList.remove(hidden)
+  }
 
   async function load() {
+    hideAll()
+    viewPassword.value = ""
+    confirmYes.ariaBusy = "false"
+    confirmNo.disabled = false
+    confirmYes.disabled = false
+    for (const dialog of document.querySelectorAll("dialog[open]")) {
+      dialog.close()
+    }
+
     try {
       loading.classList.remove(hidden)
 
       const has = await backend.hasPassword(id)
       if (!has) {
-        loading.classList.add(hidden)
         notFound.classList.remove(hidden)
         return
       }
 
-      loading.classList.add(hidden)
       confirm.classList.remove(hidden)
     } catch (e) {
       errorHandler(e)
@@ -132,17 +148,29 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     }
   }
 
-  notFoundOk.addEventListener("click", () => {
-    notFound.classList.add(hidden)
-    share.classList.remove(hidden)
-    window.location.hash = ""
-  })
+  function absorb() {
+    const hash = window.location.hash
+    if (hash == "" || hash == "#") {
+      return false
+    }
 
-  confirmNo.addEventListener("click", () => {
-    confirm.classList.add(hidden)
-    share.classList.remove(hidden)
-    window.location.hash = ""
-  })
+    const raw = hash.substring(1)
+    const [nextId, nextKey, nextIv] = raw.split(urlSplit)
+    id = nextId
+    key = nextKey
+    iv = nextIv
+
+    const url = new URL(window.location.href)
+    url.hash = ""
+    history.replaceState(null, "", url)
+
+    load()
+    return true
+  }
+
+  notFoundOk.addEventListener("click", showShare)
+  confirmNo.addEventListener("click", showShare)
+  viewOk.addEventListener("click", showShare)
 
   confirmYes.addEventListener("click", async () => {
     try {
@@ -156,7 +184,6 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
       viewPassword.value = password
       confirm.classList.add(hidden)
       view.classList.remove(hidden)
-      window.location.hash = ""
     } catch (e) {
       errorHandler(e)
     } finally {
@@ -166,13 +193,11 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     }
   })
 
-  viewOk.addEventListener("click", () => {
-    view.classList.add(hidden)
-    share.classList.remove(hidden)
-    window.location.hash = ""
-  })
+  window.addEventListener("hashchange", absorb)
 
-  load()
+  if (!absorb()) {
+    showShare()
+  }
 }
 
 /**
