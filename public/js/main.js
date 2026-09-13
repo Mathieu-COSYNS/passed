@@ -74,13 +74,7 @@ function initShare(errorHandler, backend, crypto, urlSplit, language) {
   })
 
   generate.addEventListener("click", () => {
-    let result = ""
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    for (let i = 0; i < 12; i++) {
-      result += charset.charAt(Math.floor(Math.random() * charset.length))
-    }
-
-    password.value = result
+    password.value = crypto.generatePassword()
   })
 }
 

@@ -122,8 +122,78 @@ test("fills a generated password", async ({ page }) => {
   await expect(page.locator("#share-submit")).toHaveText("Share");
   await page.locator("#share-generate").click();
   await expect(page.locator("#share-password")).toHaveValue(
-    /^[A-Za-z0-9]{12}$/,
+    /^[A-Za-z0-9]{14}$/,
   );
+});
+
+test("generated passwords use unbiased CSPRNG sampling", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+
+  const result = await page.evaluate(() => {
+    const alphabet =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let mathRandomCalls = 0;
+    const originalMathRandom = Math.random;
+    Math.random = () => {
+      mathRandomCalls += 1;
+      return originalMathRandom();
+    };
+
+    let fillCalls = 0;
+    const originalGetRandomValues = crypto.getRandomValues.bind(crypto);
+    crypto.getRandomValues = <T extends ArrayBufferView>(array: T): T => {
+      fillCalls += 1;
+      const bytes = new Uint8Array(array.buffer, array.byteOffset, array.byteLength);
+      if (fillCalls === 1) {
+        bytes.fill(255);
+      } else {
+        for (let i = 0; i < bytes.length; i++) {
+          bytes[i] = i;
+        }
+      }
+      return array;
+    };
+
+    document.querySelector<HTMLAnchorElement>("#share-generate")?.click();
+
+    Math.random = originalMathRandom;
+    crypto.getRandomValues = originalGetRandomValues;
+
+    return {
+      password: document.querySelector<HTMLTextAreaElement>("#share-password")
+        ?.value,
+      mathRandomCalls,
+      fillCalls,
+      expected: alphabet.slice(0, 14),
+    };
+  });
+
+  expect(result.mathRandomCalls).toBe(0);
+  expect(result.fillCalls).toBeGreaterThan(1);
+  expect(result.password).toBe(result.expected);
+});
+
+test("shares a generated password and reveals it", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+  await page.locator("#share-generate").click();
+  const password = await page.locator("#share-password").inputValue();
+  expect(password).toMatch(/^[A-Za-z0-9]{14}$/);
+
+  await page.locator("#share-submit").click();
+  await page.locator("#share-dialog").waitFor({ state: "visible" });
+  const shareUrl = await page.locator("#share-link").inputValue();
+  expect(shareUrl).toContain("#");
+
+  const tab = await context.newPage();
+  await tab.goto(shareUrl);
+  await tab.locator("#confirm-yes").waitFor({ state: "visible" });
+  await tab.locator("#confirm-yes").click();
+  await expect(tab.locator("#view-password")).toHaveValue(password);
 });
 
 test("copies the share link and closes the dialog", async ({ page }) => {

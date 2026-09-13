@@ -80,6 +80,32 @@ class PasswordCrypto {
   }
 
   /**
+   * 14-character password from A–Z, a–z, and 0–9 (62^14 ≈ 83.36 bits).
+   * Unbiased rejection sampling with crypto.getRandomValues.
+   * @returns {string}
+   */
+  generatePassword() {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    const length = 14
+    const unbiasedLimit = alphabet.length * Math.floor(256 / alphabet.length)
+    const chars = []
+    const bytes = new Uint8Array(length)
+    while (chars.length < length) {
+      window.crypto.getRandomValues(bytes)
+      for (const byte of bytes) {
+        if (byte >= unbiasedLimit) {
+          continue
+        }
+        chars.push(alphabet[byte % alphabet.length])
+        if (chars.length === length) {
+          break
+        }
+      }
+    }
+    return chars.join("")
+  }
+
+  /**
    * @param {string} password Plain text password
    * @returns {Promise<{ password: string, key: string, iv: string }>} Encrypted password
    */
