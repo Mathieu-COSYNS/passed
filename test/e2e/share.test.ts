@@ -1,4 +1,9 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import {
+  createShareLink,
+  expectScreenshot,
+  waitForRevealOrError,
+} from "./utils.ts";
 import { flushTestRedis } from "../flush-redis.ts";
 
 test.beforeEach(async () => {
@@ -185,35 +190,3 @@ test("shows an error when the secret cap is full", async ({ page }) => {
   await expect(page.locator("#error-error")).toContainText("507");
   await expectScreenshot(page, "error-capacity");
 });
-
-async function createShareLink(page: Page, password: string): Promise<string> {
-  await page.goto("/");
-  await expect(page.locator("#share-submit")).toHaveText("Share");
-  await page.locator("#share-password").fill(password);
-  await page.locator("#share-submit").click();
-  await page.locator("#share-dialog").waitFor({ state: "visible" });
-  const shareUrl = await page.locator("#share-link").inputValue();
-  expect(shareUrl).toContain("#");
-  return shareUrl;
-}
-
-async function waitForRevealOrError(page: Page): Promise<void> {
-  await Promise.race([
-    page.locator("#view-password").waitFor({ state: "visible" }),
-    page.locator("#error").waitFor({ state: "visible" }),
-  ]);
-}
-
-async function expectScreenshot(
-  page: Page,
-  name: string,
-  options: { mask?: Locator[] } = {},
-): Promise<void> {
-  for (const scheme of ["light", "dark"] as const) {
-    await page.emulateMedia({ colorScheme: scheme });
-    await expect(page).toHaveScreenshot(`${name}-${scheme}.png`, {
-      fullPage: true,
-      ...options,
-    });
-  }
-}

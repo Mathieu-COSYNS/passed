@@ -43,10 +43,18 @@ function initShare(errorHandler, backend, crypto, urlSplit) {
     }
   })
 
-  copy.addEventListener("click", () => {
+  if (navigator.clipboard == null || typeof navigator.clipboard.writeText != "function") {
+    copy.hidden = true
+  }
+
+  copy.addEventListener("click", async () => {
     link.select()
     link.setSelectionRange(0, 99999)
-    navigator.clipboard.writeText(link.value)
+    try {
+      await navigator.clipboard.writeText(link.value)
+    } catch (e) {
+      errorHandler(e)
+    }
   })
 
   close.addEventListener("click", () => {
