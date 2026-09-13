@@ -37,14 +37,14 @@ test("unknown localStorage language falls back to English without fetching it", 
   });
 
   await page.addInitScript(() => {
-    localStorage.setItem("language", "fr");
+    localStorage.setItem("language", "xx");
   });
   await page.goto("/");
   await expect(page.locator("#share-submit")).toHaveText("Share");
   await expect(page.locator("#language")).toHaveValue("en");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("#language")).toHaveAttribute("aria-label", "Language");
-  expect(langUrls.some((url) => url.includes("/lang/fr.json"))).toBe(false);
+  expect(langUrls.some((url) => url.includes("/lang/xx.json"))).toBe(false);
   expect(langUrls.some((url) => url.includes("/lang/en.json"))).toBe(true);
 });
 
@@ -95,6 +95,32 @@ test("switches to German and keeps it after reload", async ({ page }) => {
   await expect(page.locator("#language")).toHaveValue("de");
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await expect(page.locator("#language")).toHaveAttribute("aria-label", "Sprache");
+
+  await page.locator("#language").selectOption("en");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+  await expect(page.locator("#language")).toHaveValue("en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Language");
+});
+
+test("switches to French and keeps it after reload", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Language");
+
+  await page.locator("#language").selectOption("fr");
+  await expect(page.locator("#share-submit")).toHaveText("Partager");
+  await expect(page.locator("#language")).toHaveValue("fr");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Langue");
+  await expectScreenshot(page, "french-share-form");
+
+  await page.reload();
+  await expect(page.locator("#share-submit")).toHaveText("Partager");
+  await expect(page.locator("#language")).toHaveValue("fr");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Langue");
 
   await page.locator("#language").selectOption("en");
   await expect(page.locator("#share-submit")).toHaveText("Share");

@@ -9,7 +9,7 @@ class Language {
 
   constructor() {
     this.#localStorageKey = "language";
-    this.#allowedLanguages = ["en", "de"];
+    this.#allowedLanguages = ["en", "de", "fr"];
     this.#translationsCache = new Map();
     this.#currentLanguage = this.#resolveLanguage(
       localStorage.getItem(this.#localStorageKey),
