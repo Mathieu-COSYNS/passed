@@ -10,7 +10,7 @@ You want to share it on paper, but everyone can read that too.
 
 PassED solves this issue by allowing you to generate a URL with your password. Links allow **one view by default**; you can allow additional views (up to 10) when sharing. The browser encrypts the secret with AES-256-GCM before it leaves your device. The server stores only ciphertext and deletes it after the last remaining view or when it expires.
 
-![PassED screenshot](./docs/images/PassED.png)
+![PassED screenshot](./test/e2e/share.test.ts-snapshots/01-share-form-dark-linux.png)
 
 The original [1e99/passed](https://git.1e99.eu/1e99/passed) repository currently appears to be down ([web archive](https://web.archive.org/web/20251118132530/https://git.1e99.eu/1e99/passed)). This TypeScript [Nitro](https://nitro.build) reimplementation was created to continue the idea.
 
@@ -55,7 +55,7 @@ Unlimited live shares is opt-in. Set `PASSED_MAX_SECRETS=0` only if you accept u
 
 Vercel is serverless, so use [Upstash](#upstash) (`PASSED_STORE_TYPE=upstash`), not Redis TCP. See the note under [Redis](#redis).
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMathieu-COSYNS%2Fpassed&repository-name=passed&env=PASSED_STORE_TYPE&envDefaults=%7B%22PASSED_STORE_TYPE%22%3A%22upstash%22%7D&project-name=passed&demo-title=Passed&demo-description=Share+a+password+with+a+one-time+URL&demo-url=https%3A%2F%2Fpassed-demo.vercel.app%2F&demo-image=https%3A%2F%2Fgithub.com%2FMathieu-COSYNS%2Fpassed%2Fraw%2Fmain%2Fdocs%2Fimages%2FPassED.png)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMathieu-COSYNS%2Fpassed&repository-name=passed&env=PASSED_STORE_TYPE&envDefaults=%7B%22PASSED_STORE_TYPE%22%3A%22upstash%22%7D&project-name=passed&demo-title=Passed&demo-description=Share+a+password+with+a+one-time+URL&demo-url=https%3A%2F%2Fpassed-demo.vercel.app%2F&demo-image=https%3A%2F%2Fgithub.com%2FMathieu-COSYNS%2Fpassed%2Fraw%2Fmain%2Ftest%2Fe2e%2Fshare.test.ts-snapshots%2F01-share-form-dark-linux.png)
 
 The button clones this repository and sets `PASSED_STORE_TYPE=upstash`.
 
