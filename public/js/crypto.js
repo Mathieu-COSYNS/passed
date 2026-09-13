@@ -47,6 +47,39 @@ class PasswordCrypto {
   }
 
   /**
+   * @param {string} base64
+   * @returns {number}
+   */
+  #decodedByteLength(base64) {
+    if (typeof base64 != "string" || base64.length === 0) {
+      return -1
+    }
+    try {
+      return this.#base64ToBuffer(base64).byteLength
+    } catch {
+      return -1
+    }
+  }
+
+  /**
+   * AES-256-GCM raw key is 32 bytes of standard Base64.
+   * @param {string} key
+   * @returns {boolean}
+   */
+  isValidShareKey(key) {
+    return this.#decodedByteLength(key) === this.#algorithmLength / 8
+  }
+
+  /**
+   * AES-GCM IV is 12 bytes of standard Base64.
+   * @param {string} iv
+   * @returns {boolean}
+   */
+  isValidShareIv(iv) {
+    return this.#decodedByteLength(iv) === this.#ivLength
+  }
+
+  /**
    * @param {string} password Plain text password
    * @returns {Promise<{ password: string, key: string, iv: string }>} Encrypted password
    */

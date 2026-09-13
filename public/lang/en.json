@@ -19,6 +19,7 @@
   "reveal-password-once": "You may only reveal the password once.",
   "not-found": "Password not found",
   "not-found-reasons": "The password you requested may have expired, been viewed before or never even existed in the first place.",
+  "decrypt-failed": "The password could not be decrypted. This share has been consumed and is no longer available.",
   "source": "Source",
   "language": "Language",
   "dont-have-a-password": "Don't have a password?",

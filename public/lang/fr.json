@@ -19,6 +19,7 @@
   "reveal-password-once": "Vous ne pouvez révéler le mot de passe qu'une seule fois.",
   "not-found": "Mot de passe introuvable",
   "not-found-reasons": "Le mot de passe demandé a peut-être expiré, a déjà été consulté, ou n'a jamais existé.",
+  "decrypt-failed": "Le mot de passe n'a pas pu être déchiffré. Ce partage a été consommé et n'est plus disponible.",
   "source": "Code source",
   "language": "Langue",
   "dont-have-a-password": "Vous n'avez pas de mot de passe ?",

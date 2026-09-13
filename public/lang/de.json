@@ -19,6 +19,7 @@
   "reveal-password-once": "Sie können sich das Passwort nur einmal anschauen.",
   "not-found": "Passwort nicht gefunden",
   "not-found-reasons": "Das von Ihnen angefragte Passwort ist evtl. abgelaufen, wurde bereits angesehen oder hat noch nie existiert.",
+  "decrypt-failed": "Das Passwort konnte nicht entschlüsselt werden. Dieser Link wurde verbraucht und ist nicht mehr verfügbar.",
   "source": "Quellcode",
   "language": "Sprache",
   "dont-have-a-password": "Haben Sie kein Passwort?",

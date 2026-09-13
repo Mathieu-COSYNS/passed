@@ -98,6 +98,8 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
   const confirmNo = document.querySelector("button#confirm-no")
   const confirmYes = document.querySelector("button#confirm-yes")
   const notFound = document.querySelector("article#not-found")
+  const notFoundReasons = document.querySelector("p#not-found-reasons")
+  const decryptFailed = document.querySelector("p#decrypt-failed")
   const notFoundOk = document.querySelector("button#not-found-ok")
   const view = document.querySelector("article#view")
   const viewPassword = document.querySelector("textarea#view-password")
@@ -115,28 +117,105 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     view.classList.add(hidden)
   }
 
+  function setConfirmBusy(busy) {
+    confirmYes.ariaBusy = busy ? "true" : "false"
+    confirmNo.disabled = busy
+    confirmYes.disabled = busy
+  }
+
+  function resetView() {
+    hideAll()
+    viewPassword.value = ""
+    setConfirmBusy(false)
+    for (const dialog of document.querySelectorAll("dialog[open]")) {
+      dialog.close()
+    }
+  }
+
   function showShare() {
     hideAll()
     viewPassword.value = ""
     share.classList.remove(hidden)
   }
 
-  async function load() {
-    hideAll()
-    viewPassword.value = ""
-    confirmYes.ariaBusy = "false"
-    confirmNo.disabled = false
-    confirmYes.disabled = false
-    for (const dialog of document.querySelectorAll("dialog[open]")) {
-      dialog.close()
+  function showNotFound() {
+    notFoundReasons.classList.remove(hidden)
+    decryptFailed.classList.add(hidden)
+    notFound.classList.remove(hidden)
+  }
+
+  function showDecryptFailed() {
+    notFoundReasons.classList.add(hidden)
+    decryptFailed.classList.remove(hidden)
+    notFound.classList.remove(hidden)
+  }
+
+  function showView(password) {
+    viewPassword.value = password
+    confirm.classList.add(hidden)
+    view.classList.remove(hidden)
+  }
+
+  /**
+   * Share fragments must be exactly `id:key:iv`. Extra `:` pieces are rejected.
+   * `id` is 24 letters; `key`/`iv` must decode as a 32-byte AES key and 12-byte IV.
+   * @param {string} raw
+   * @returns {{ id: string, key: string, iv: string } | null}
+   */
+  function parseShareFragment(raw) {
+    const parts = raw.split(urlSplit)
+    if (parts.length !== 3) {
+      return null
     }
+
+    const [nextId, nextKey, nextIv] = parts
+    if (!/^[A-Za-z]{24}$/.test(nextId)) {
+      return null
+    }
+    if (!crypto.isValidShareKey(nextKey) || !crypto.isValidShareIv(nextIv)) {
+      return null
+    }
+
+    return { id: nextId, key: nextKey, iv: nextIv }
+  }
+
+  function scrubHash() {
+    const url = new URL(window.location.href)
+    url.hash = ""
+    history.replaceState(null, "", url)
+  }
+
+  function absorb() {
+    const hash = window.location.hash
+    if (hash == "" || hash == "#") {
+      return false
+    }
+
+    const parsed = parseShareFragment(hash.substring(1))
+    scrubHash()
+
+    id = parsed?.id
+    key = parsed?.key
+    iv = parsed?.iv
+    if (parsed == null) {
+      resetView()
+      showNotFound()
+      return true
+    }
+
+    checkExist()
+    return true
+  }
+
+  async function checkExist() {
+    resetView()
 
     try {
       loading.classList.remove(hidden)
 
       const has = await backend.hasPassword(id)
       if (!has) {
-        notFound.classList.remove(hidden)
+        showNotFound()
         return
       }
 
@@ -148,51 +227,40 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     }
   }
 
-  function absorb() {
-    const hash = window.location.hash
-    if (hash == "" || hash == "#") {
-      return false
+  async function revealPassword() {
+    try {
+      setConfirmBusy(true)
+
+      if (
+        id == null ||
+        !crypto.isValidShareKey(key) ||
+        !crypto.isValidShareIv(iv)
+      ) {
+        resetView()
+        showNotFound()
+        return
+      }
+
+      const encrypted = await backend.getPassword(id)
+      try {
+        const password = await crypto.decryptPassword(encrypted, key, iv)
+        showView(password)
+      } catch (decryptError) {
+        console.error(decryptError)
+        resetView()
+        showDecryptFailed()
+      }
+    } catch (e) {
+      errorHandler(e)
+    } finally {
+      setConfirmBusy(false)
     }
-
-    const raw = hash.substring(1)
-    const [nextId, nextKey, nextIv] = raw.split(urlSplit)
-    id = nextId
-    key = nextKey
-    iv = nextIv
-
-    const url = new URL(window.location.href)
-    url.hash = ""
-    history.replaceState(null, "", url)
-
-    load()
-    return true
   }
 
   notFoundOk.addEventListener("click", showShare)
   confirmNo.addEventListener("click", showShare)
   viewOk.addEventListener("click", showShare)
-
-  confirmYes.addEventListener("click", async () => {
-    try {
-      confirmYes.ariaBusy = "true"
-      confirmNo.disabled = true
-      confirmYes.disabled = true
-
-      const encrypted = await backend.getPassword(id)
-      const password = await crypto.decryptPassword(encrypted, key, iv)
-
-      viewPassword.value = password
-      confirm.classList.add(hidden)
-      view.classList.remove(hidden)
-    } catch (e) {
-      errorHandler(e)
-    } finally {
-      confirmYes.ariaBusy = "false"
-      confirmNo.disabled = false
-      confirmYes.disabled = false
-    }
-  })
-
+  confirmYes.addEventListener("click", revealPassword)
   window.addEventListener("hashchange", absorb)
 
   if (!absorb()) {
