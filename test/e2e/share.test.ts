@@ -179,6 +179,6 @@ test("shows an error when the secret cap is full", async ({ page }) => {
   await page.locator("#share-password").fill("third");
   await page.locator("#share-submit").click();
   await expect(page.locator("#error")).toBeVisible();
-  await expect(page.locator("#error-error")).toContainText("507");
+  await expect(page.locator("#error-error")).toContainText("server is full");
   await expectScreenshot(page, "error-capacity");
 });

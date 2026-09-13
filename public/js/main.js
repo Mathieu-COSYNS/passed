@@ -23,10 +23,20 @@ function initShare(errorHandler, backend, crypto, urlSplit) {
       fieldset.disabled = true
       submit.ariaBusy = "true"
 
-      const encrypted = await crypto.encryptPassword(data.get("password"))
+      const plain = data.get("password")
+      if (typeof plain != "string" || plain.length === 0) {
+        throw new Error("Password is required")
+      }
+
+      const expiresIn = parseInt(data.get("expires-in"), 10)
+      if (!Number.isInteger(expiresIn) || expiresIn <= 0) {
+        throw new Error("Expiry is invalid")
+      }
+
+      const encrypted = await crypto.encryptPassword(plain)
       const id = await backend.createPassword(
         encrypted.password,
-        parseInt(data.get("expires-in")),
+        expiresIn,
       )
 
       const url = new URL(window.location)

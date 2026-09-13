@@ -15,6 +15,13 @@ class Backend {
         "expires-in": expiresIn,
       }),
     })
+    if (res.status === 507) {
+      throw new Error("Failed to upload password: the server is full")
+    }
+    if (res.status === 400) {
+      const msg = await res.text()
+      throw new Error(`Failed to upload password, got status 400: ${msg}`)
+    }
     if (res.status != 200) {
       throw new Error(`Failed to upload password, got status ${res.status}`)
     }
