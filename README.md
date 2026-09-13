@@ -94,6 +94,8 @@ Encrypted secrets are stored in a Redis database.
 
 When Redis hits [`maxmemory`](https://redis.io/docs/latest/develop/reference/eviction/) with `noeviction` (as in the examples below), you cannot save new secrets, but existing links still work. Other eviction policies remove secrets to make room, so some links may stop working before anyone opens them.
 
+Without a volume on `/data` and `--appendonly yes`, restarting Redis drops live shares.
+
 Local `compose.yaml` runs Redis 8 on `127.0.0.1` with no AUTH, and starts the app only after Redis accepts PING. That is fine on loopback. Do not publish an unauthenticated Redis port on a public network.
 
 For production, require AUTH, use TLS (`rediss://`) when the connection leaves a private network, or use managed Redis / [Upstash](#upstash) instead of an open `redis://` URL:
@@ -113,10 +115,14 @@ services:
       - redis-server
       - --requirepass
       - ${REDIS_PASSWORD}
+      - --appendonly
+      - "yes"
       - --maxmemory
       - 256mb
       - --maxmemory-policy
       - noeviction
+    volumes:
+      - redis-data:/data
     healthcheck:
       test:
         [
@@ -140,6 +146,9 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+volumes:
+  redis-data:
 ```
 
 To run the app container against local Compose Redis (no AUTH, host loopback only):

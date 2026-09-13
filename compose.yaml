@@ -1,5 +1,7 @@
 # Local development. Redis is bound to 127.0.0.1 with no AUTH.
-# For production, require AUTH (and TLS if the link is not private) or use managed Redis / Upstash.
+# Data is ephemeral: recreating the Redis container drops live shares. Fine for development.
+# For production, persist with a volume on /data and --appendonly yes, require AUTH
+# (and TLS if the link is not private), or use managed Redis / Upstash. See the README Redis section.
 services:
   redis:
     image: redis:8-alpine
