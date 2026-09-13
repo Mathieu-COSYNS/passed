@@ -44,6 +44,7 @@ function initShare(errorHandler, backend, crypto, urlSplit, language) {
       url.hash = [id, encrypted.key, encrypted.iv].join(urlSplit)
       url.search = ""
 
+      password.value = ""
       link.value = url.toString()
       dialog.showModal()
     } catch (e) {
