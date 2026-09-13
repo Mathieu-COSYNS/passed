@@ -220,7 +220,7 @@ src/
 public/
   css/               Styles
   js/                Client crypto, API, i18n
-  lang/              Translations (en, de, fr)
+  lang/              Translations (en, de, fr, nl)
 test/                API tests
 index.html           Vite HTML entry
 nitro.config.ts      Nitro config

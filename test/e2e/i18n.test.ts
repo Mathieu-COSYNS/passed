@@ -128,3 +128,29 @@ test("switches to French and keeps it after reload", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("#language")).toHaveAttribute("aria-label", "Language");
 });
+
+test("switches to Dutch and keeps it after reload", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Language");
+
+  await page.locator("#language").selectOption("nl");
+  await expect(page.locator("#share-submit")).toHaveText("Delen");
+  await expect(page.locator("#language")).toHaveValue("nl");
+  await expect(page.locator("html")).toHaveAttribute("lang", "nl");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Taal");
+  await expectScreenshot(page, "dutch-share-form");
+
+  await page.reload();
+  await expect(page.locator("#share-submit")).toHaveText("Delen");
+  await expect(page.locator("#language")).toHaveValue("nl");
+  await expect(page.locator("html")).toHaveAttribute("lang", "nl");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Taal");
+
+  await page.locator("#language").selectOption("en");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+  await expect(page.locator("#language")).toHaveValue("en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Language");
+});
