@@ -1,5 +1,5 @@
 {
-  "share-password": "Password teilen",
+  "share-password": "Passwort teilen",
   "share": "Teilen",
   "password": "Passwort",
   "expires-in": "Ablaufzeit",
@@ -15,12 +15,12 @@
   "ok": "OK",
   "yes": "Ja",
   "no": "Nein",
-  "reveal-password": "Password anzeigen",
-  "reveal-password-once": "Sie können sich das Password nur ein mal anschauen.",
+  "reveal-password": "Passwort anzeigen",
+  "reveal-password-once": "Sie können sich das Passwort nur einmal anschauen.",
   "not-found": "Passwort nicht gefunden",
-  "not-found-reasons": "Das von ihnen angefragte Passwort ist evtl abgelaufen, wurde bereits angesehen oder hat noch nie existiert.",
+  "not-found-reasons": "Das von Ihnen angefragte Passwort ist evtl. abgelaufen, wurde bereits angesehen oder hat noch nie existiert.",
   "source": "Quellcode",
-  "language": "Sprace",
+  "language": "Sprache",
   "dont-have-a-password": "Haben Sie kein Passwort?",
   "generate-one": "Generieren Sie eins."
 }

@@ -168,6 +168,7 @@ test("switches to German and keeps it after reload", async ({ page }) => {
   await page.locator("details.dropdown summary").click();
   await page.locator('li.select-lang[data-lang="de"]').click();
   await expect(page.locator("#share-submit")).toHaveText("Teilen");
+  await expect(page.locator("details.dropdown summary")).toHaveText("Sprache");
   await expectScreenshot(page, "german-share-form");
 
   await page.reload();
