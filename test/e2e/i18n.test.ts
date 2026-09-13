@@ -154,3 +154,87 @@ test("switches to Dutch and keeps it after reload", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("#language")).toHaveAttribute("aria-label", "Language");
 });
+
+test.describe("defaults from browser language", () => {
+  test.describe("French locale", () => {
+    test.use({ locale: "fr-FR" });
+
+    test("opens in French when no language is stored", async ({ page }) => {
+      await page.goto("/");
+      await expect(page.locator("#share-submit")).toHaveText("Partager");
+      await expect(page.locator("#language")).toHaveValue("fr");
+      await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+      await expect(page.locator("#language")).toHaveAttribute(
+        "aria-label",
+        "Langue",
+      );
+    });
+
+    test("keeps a stored language instead of the browser locale", async ({
+      page,
+    }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem("language", "de");
+      });
+      await page.goto("/");
+      await expect(page.locator("#share-submit")).toHaveText("Teilen");
+      await expect(page.locator("#language")).toHaveValue("de");
+      await expect(page.locator("html")).toHaveAttribute("lang", "de");
+    });
+
+    test("unknown stored language falls back to the browser locale", async ({
+      page,
+    }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem("language", "xx");
+      });
+      await page.goto("/");
+      await expect(page.locator("#share-submit")).toHaveText("Partager");
+      await expect(page.locator("#language")).toHaveValue("fr");
+      await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+    });
+  });
+
+  test.describe("Austrian German locale", () => {
+    test.use({ locale: "de-AT" });
+
+    test("maps a regional tag to German", async ({ page }) => {
+      await page.goto("/");
+      await expect(page.locator("#share-submit")).toHaveText("Teilen");
+      await expect(page.locator("#language")).toHaveValue("de");
+      await expect(page.locator("html")).toHaveAttribute("lang", "de");
+    });
+  });
+
+  test.describe("unsupported locale", () => {
+    test.use({ locale: "ja-JP" });
+
+    test("falls back to English", async ({ page }) => {
+      await page.goto("/");
+      await expect(page.locator("#share-submit")).toHaveText("Share");
+      await expect(page.locator("#language")).toHaveValue("en");
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    });
+  });
+});
+
+test("picks the first allowed language in the browser preference list", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "languages", {
+      configurable: true,
+      get: () => ["es-ES", "nl-BE", "en-US"],
+    });
+    Object.defineProperty(navigator, "language", {
+      configurable: true,
+      get: () => "es-ES",
+    });
+  });
+
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Delen");
+  await expect(page.locator("#language")).toHaveValue("nl");
+  await expect(page.locator("html")).toHaveAttribute("lang", "nl");
+  await expect(page.locator("#language")).toHaveAttribute("aria-label", "Taal");
+});

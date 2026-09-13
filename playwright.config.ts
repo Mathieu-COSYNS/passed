@@ -28,6 +28,7 @@ export default defineConfig({
   },
   use: {
     baseURL: E2E_ORIGIN,
+    locale: "en-US",
     headless: true,
     viewport: { width: 1280, height: 720 },
     permissions: ["clipboard-read", "clipboard-write"],

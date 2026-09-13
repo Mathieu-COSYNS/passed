@@ -18,14 +18,54 @@ class Language {
   }
 
   /**
-   * Returns `language` when it is allowlisted; otherwise the default language.
+   * Returns `language` when it is allowlisted; otherwise the best match from
+   * the browser's preferred languages, then the default language.
    * @param {string | null} language
    * @returns {string}
    */
   #resolveLanguage(language) {
     return this.#allowedLanguages.includes(language)
       ? language
-      : this.#allowedLanguages[0];
+      : this.#preferredAllowedLanguage();
+  }
+
+  /**
+   * Maps a BCP 47 tag such as `fr` or `de-AT` to an allowlisted code.
+   * @param {string | null | undefined} preference
+   * @returns {string | null}
+   */
+  #matchAllowedLanguage(preference) {
+    if (preference == null || preference === "") {
+      return null;
+    }
+
+    const normalized = String(preference).toLowerCase().replaceAll("_", "-");
+    if (this.#allowedLanguages.includes(normalized)) {
+      return normalized;
+    }
+
+    const primary = normalized.split("-")[0];
+    return this.#allowedLanguages.includes(primary) ? primary : null;
+  }
+
+  /**
+   * First allowlisted language in `navigator.languages`, else the default.
+   * @returns {string}
+   */
+  #preferredAllowedLanguage() {
+    const preferences =
+      navigator.languages?.length > 0
+        ? navigator.languages
+        : [navigator.language];
+
+    for (const preference of preferences) {
+      const matched = this.#matchAllowedLanguage(preference);
+      if (matched != null) {
+        return matched;
+      }
+    }
+
+    return this.#allowedLanguages[0];
   }
 
   /**
@@ -76,8 +116,9 @@ class Language {
   }
 
   /**
-   * Switches the UI to `language`. Unknown codes fall back to the default
-   * language. A failed load leaves the current language in place.
+   * Switches the UI to `language`. Unknown codes fall back to the best
+   * matching browser language, then the default. A failed load leaves the
+   * current language in place.
    * @param {string | null} language
    */
   async setLanguage(language) {
