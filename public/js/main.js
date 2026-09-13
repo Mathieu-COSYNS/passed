@@ -13,7 +13,7 @@ function initShare(errorHandler, backend, crypto, urlSplit, language) {
   const link = document.querySelector("input#share-link")
   const copy = document.querySelector("button#share-copy")
   const close = document.querySelector("button#share-close")
-  const generate = document.querySelector("a#share-generate")
+  const generate = document.querySelector("button#share-generate")
   const password = document.querySelector("textarea#share-password")
 
   form.addEventListener("submit", async (e) => {

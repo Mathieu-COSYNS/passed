@@ -126,6 +126,23 @@ test("fills a generated password", async ({ page }) => {
   );
 });
 
+test("generate is reachable and activatable with the keyboard", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+
+  await page.locator("#share-submit").focus();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#share-generate")).toBeFocused();
+
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#share-password")).toHaveValue(
+    /^[A-Za-z0-9]{14}$/,
+  );
+  await expect(page.locator("#share-dialog")).toBeHidden();
+});
+
 test("generated passwords use unbiased CSPRNG sampling", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#share-submit")).toHaveText("Share");
@@ -155,7 +172,7 @@ test("generated passwords use unbiased CSPRNG sampling", async ({ page }) => {
       return array;
     };
 
-    document.querySelector<HTMLAnchorElement>("#share-generate")?.click();
+    document.querySelector<HTMLButtonElement>("#share-generate")?.click();
 
     Math.random = originalMathRandom;
     crypto.getRandomValues = originalGetRandomValues;

@@ -5,3 +5,34 @@
 textarea {
   font-family: monospace;
 }
+
+button.link-like-button {
+  display: inline;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--pico-contrast-underline);
+  text-underline-offset: 0.125em;
+  color: var(--pico-contrast);
+  cursor: pointer;
+  user-select: auto;
+}
+
+button.link-like-button:is(:hover, :active, :focus) {
+  background-color: transparent;
+  border: none;
+  color: var(--pico-contrast-hover);
+  text-decoration-color: var(--pico-contrast-hover-underline);
+}
+
+button.link-like-button:focus-visible {
+  box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-contrast-focus);
+}
