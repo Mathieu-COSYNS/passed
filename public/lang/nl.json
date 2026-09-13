@@ -25,5 +25,7 @@
   "dont-have-a-password": "Heeft u geen wachtwoord?",
   "generate-one": "Genereer er een.",
   "password-required": "Wachtwoord is verplicht",
-  "expiry-invalid": "Verlooptijd is ongeldig"
+  "expiry-invalid": "Verlooptijd is ongeldig",
+  "views": "Weergaven",
+  "reveal-password-notice": "Elke onthulling verbruikt één weergave. De link wordt na de laatste weergave verwijderd."
 }

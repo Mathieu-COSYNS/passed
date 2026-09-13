@@ -25,5 +25,7 @@
   "dont-have-a-password": "Don't have a password?",
   "generate-one": "Generate one.",
   "password-required": "Password is required",
-  "expiry-invalid": "Expiry is invalid"
+  "expiry-invalid": "Expiry is invalid",
+  "views": "Views",
+  "reveal-password-notice": "Revealing uses one view. The share is deleted after the last remaining view."
 }

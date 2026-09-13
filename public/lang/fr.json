@@ -25,5 +25,7 @@
   "dont-have-a-password": "Vous n'avez pas de mot de passe ?",
   "generate-one": "En générer un.",
   "password-required": "Le mot de passe est requis",
-  "expiry-invalid": "La durée d'expiration est invalide"
+  "expiry-invalid": "La durée d'expiration est invalide",
+  "views": "Vues",
+  "reveal-password-notice": "Chaque révélation consomme une vue. Le lien est supprimé après la dernière vue restante."
 }

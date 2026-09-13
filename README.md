@@ -8,7 +8,7 @@ You want to share it using WhatsApp, but there it will show up in the notificati
 
 You want to share it on paper, but everyone can read that too.
 
-PassED solves this issue by allowing you to generate **single-use URL** with your password. The browser encrypts the secret with AES-256-GCM before it leaves your device. The server stores only ciphertext and deletes it after the first successful view or when it expires.
+PassED solves this issue by allowing you to generate a URL with your password. Links allow **one view by default**; you can allow additional views (up to 10) when sharing. The browser encrypts the secret with AES-256-GCM before it leaves your device. The server stores only ciphertext and deletes it after the last remaining view or when it expires.
 
 ![PassED screenshot](./docs/images/PassED.png)
 
@@ -28,7 +28,7 @@ When you share a password:
 When someone opens the link:
 
 1. The browser checks that the id still exists (`HEAD /api/password/:id`) without deleting it.
-2. After they confirm, it fetches the ciphertext (`GET /api/password/:id`) and the server deletes it.
+2. After they confirm, it fetches the ciphertext (`GET /api/password/:id`) and the server consumes one view (deleting the share on the last view).
 3. The browser decrypts the password locally with the key and IV from the URL.
 
 Browsers do not send the `#fragment` to the server, so a malicious host cannot decrypt the password.
@@ -225,7 +225,7 @@ src/
   env.ts             Environment validation (t3-env)
   plugins/           Nitro plugins (Redis / Upstash client)
   routes/            API routes (POST / GET / HEAD password)
-  utils/             Store backends, id generation, types
+  utils/             Store backends, id generation
 public/
   css/               Styles
   js/                Client crypto, API, i18n
@@ -250,7 +250,7 @@ Compatible with the PassED frontend in `public/`:
 
 - `POST /api/password` body `{"password":"<base64 ciphertext>","expires-in":3600,"view":1}`. `expires-in` is seconds until expiry, max 1209600 (2 weeks). `view` is remaining views before delete, default 1, max 10. Responds with a JSON string id if stored. If `PASSED_MAX_SECRETS` that many live shares already exist, returns status 507.
 - `HEAD /api/password/:id` → `204` if the secret exists, `404` otherwise (does not delete)
-- `GET /api/password/:id` → JSON string ciphertext, then delete
+- `GET /api/password/:id` → JSON string ciphertext; consumes one remaining view (`view` from POST, default 1, max 10) and deletes the share when none remain
 
 ## License and attribution
 

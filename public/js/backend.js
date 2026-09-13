@@ -5,14 +5,16 @@ class Backend {
   /**
    * @param {string} password Encrypted password
    * @param {number} expiresIn Seconds until the password will be deleted on the server
+   * @param {number} [view] Remaining views before delete (default 1, max 10)
    * @returns {Promise<string>} Password Id
    */
-  async createPassword(password, expiresIn) {
+  async createPassword(password, expiresIn, view = 1) {
     const res = await fetch("/api/password", {
       method: "POST",
       body: JSON.stringify({
         "password": password,
         "expires-in": expiresIn,
+        "view": view,
       }),
     })
     if (res.status === 507) {

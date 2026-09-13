@@ -25,5 +25,7 @@
   "dont-have-a-password": "Haben Sie kein Passwort?",
   "generate-one": "Generieren Sie eins.",
   "password-required": "Passwort ist erforderlich",
-  "expiry-invalid": "Ablaufzeit ist ungültig"
+  "expiry-invalid": "Ablaufzeit ist ungültig",
+  "views": "Ansichten",
+  "reveal-password-notice": "Jeder Abruf verbraucht eine Ansicht. Der Link wird nach der letzten Ansicht gelöscht."
 }

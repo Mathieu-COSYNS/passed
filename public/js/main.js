@@ -35,9 +35,13 @@ function initShare(errorHandler, backend, crypto, urlSplit, language) {
       }
 
       const encrypted = await crypto.encryptPassword(plain)
+      const viewRaw = data.get("view")
+      const parsedView = parseInt(viewRaw == null || viewRaw === "" ? "1" : String(viewRaw), 10)
+      const view = Number.isInteger(parsedView) && parsedView > 0 ? parsedView : 1
       const id = await backend.createPassword(
         encrypted.password,
         expiresIn,
+        view,
       )
 
       const url = new URL(window.location)
