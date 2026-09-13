@@ -1,79 +1,95 @@
+/**
+ * Loads JSON translations and fills elements that have a `t` attribute.
+ */
 class Language {
+  #localStorageKey;
+  #allowedLanguages;
+  #translationsCache;
+  #currentLanguage;
 
-  #storageKey
-  #languages
-  #language
-  #errorHandler
-  #defaultLang
-
-  constructor(errorHandler, defaultLang) {
-    this.#storageKey = "language"
-    this.#languages = new Map()
-    this.#errorHandler = errorHandler
-    this.#defaultLang = defaultLang
-
-    const setLanguage = localStorage.getItem(this.#storageKey)
-    if (setLanguage == null) {
-      this.setLanguage(this.#defaultLang)
-      this.#language = this.#defaultLang
-      return
-    }
-
-    this.#language = setLanguage
-    this.setLanguage(this.#language)
+  constructor() {
+    this.#localStorageKey = "language";
+    this.#allowedLanguages = ["en", "de"];
+    this.#translationsCache = new Map();
+    this.#currentLanguage = this.#resolveLanguage(
+      localStorage.getItem(this.#localStorageKey),
+    );
+    this.setLanguage(this.#currentLanguage);
   }
 
-  async #fetchLanguage(lang) {
-    const cached = this.#languages.get(lang)
+  /**
+   * Returns `language` when it is allowlisted; otherwise the default language.
+   * @param {string | null} language
+   * @returns {string}
+   */
+  #resolveLanguage(language) {
+    return this.#allowedLanguages.includes(language)
+      ? language
+      : this.#allowedLanguages[0];
+  }
+
+  /**
+   * @param {string} language Allowlisted language code.
+   * @returns {Promise<Record<string, string>>}
+   */
+  async #loadTranslations(language) {
+    const cached = this.#translationsCache.get(language);
     if (cached != null) {
-      return cached
+      return cached;
     }
 
-    const f = await fetch(`/lang/${lang}.json`)
-    const fetched = await f.json()
+    const response = await fetch(`/lang/${language}.json`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to load language ${language}: ${response.status}`,
+      );
+    }
 
-    this.#languages.set(lang, fetched)
-    return fetched
+    const translations = await response.json();
+    this.#translationsCache.set(language, translations);
+    return translations;
   }
 
-  #translate(key, ...args) {
-    let bundle = this.#languages.get(this.#language)
-    if (bundle == null) {
-      bundle = {}
+  /**
+   * @param {Record<string, string>} translations
+   */
+  #applyTranslations(translations) {
+    document.documentElement.lang = this.#currentLanguage;
+
+    for (const element of document.querySelectorAll("[t]")) {
+      const key = element.getAttribute("t");
+      element.textContent = translations[key] ?? key;
     }
 
-    let value = bundle[key];
-    if (value == undefined) {
-      value = key
-    }
-
-    for (let i = 0; i < args.length; i++) {
-      value = value.replaceAll(`{${i}}`, args[i])
-    }
-
-    return value
-  }
-
-  #translatePage() {
-    const elements = document.getElementsByTagName("*")
-    for (const element of elements) {
-      const key = element.getAttribute("t")
-      if (key == null) {
-        continue
-      }
-
-      element.innerHTML = this.#translate(key)
+    for (const element of document.querySelectorAll("[t-aria-label]")) {
+      const key = element.getAttribute("t-aria-label");
+      element.setAttribute("aria-label", translations[key] ?? key);
     }
   }
 
-  setLanguage(lang) {
-    this.#fetchLanguage(lang)
-      .then(() => {
-        this.#language = lang
-        localStorage.setItem(this.#storageKey, lang)
+  /**
+   * Language code currently applied to the page.
+   * @returns {string}
+   */
+  getLanguage() {
+    return this.#currentLanguage;
+  }
 
-        this.#translatePage()
-      })
-      .catch((err) => this.#errorHandler(err))
+  /**
+   * Switches the UI to `language`. Unknown codes fall back to the default
+   * language. A failed load leaves the current language in place.
+   * @param {string | null} language
+   */
+  async setLanguage(language) {
+    const resolved = this.#resolveLanguage(language);
+
+    try {
+      const translations = await this.#loadTranslations(resolved);
+      this.#currentLanguage = resolved;
+      localStorage.setItem(this.#localStorageKey, resolved);
+      this.#applyTranslations(translations);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }

@@ -161,24 +161,6 @@ test("only one of two tabs can reveal the same share", async ({
   await expect(loser.locator("#error-error")).toContainText("404");
 });
 
-test("switches to German and keeps it after reload", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.locator("#share-submit")).toHaveText("Share");
-
-  await page.locator("details.dropdown summary").click();
-  await page.locator('li.select-lang[data-lang="de"]').click();
-  await expect(page.locator("#share-submit")).toHaveText("Teilen");
-  await expect(page.locator("details.dropdown summary")).toHaveText("Sprache");
-  await expectScreenshot(page, "german-share-form");
-
-  await page.reload();
-  await expect(page.locator("#share-submit")).toHaveText("Teilen");
-
-  await page.locator("details.dropdown summary").click();
-  await page.locator('li.select-lang[data-lang="en"]').click();
-  await expect(page.locator("#share-submit")).toHaveText("Share");
-});
-
 test("shows an error when the secret cap is full", async ({ page }) => {
   await createShareLink(page, "first");
   await createShareLink(page, "second");

@@ -167,14 +167,13 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
  * @param {Language} language 
  */
 function initLanguage(language) {
-  const selectLanguages = document.querySelectorAll("li.select-lang")
-  for (const selectLang of selectLanguages) {
-    const lang = selectLang.getAttribute("data-lang")
+  const select = document.querySelector("select#language")
+  select.value = language.getLanguage()
 
-    selectLang.addEventListener("click", async () => {
-      language.setLanguage(lang)
-    })
-  }
+  select.addEventListener("change", async () => {
+    await language.setLanguage(select.value)
+    select.value = language.getLanguage()
+  })
 }
 
 function init() {
@@ -197,7 +196,7 @@ function init() {
 
   const backend = new Backend()
   const crypto = new PasswordCrypto()
-  const language = new Language(handleError, "en")
+  const language = new Language()
   const urlSplit = ":"
 
   initShare(handleError, backend, crypto, urlSplit)
