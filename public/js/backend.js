@@ -37,7 +37,7 @@ class Backend {
       case 404:
         return false
       default:
-        throw new Error(`Failed to check if password exists: ${res.status}: ${msg}`)
+        throw new Error(`Failed to check if password exists: ${res.status}`)
     }
   }
 
