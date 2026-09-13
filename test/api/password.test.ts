@@ -50,6 +50,7 @@ function expectSecurityHeaders(res: Response): void {
   expect(csp).toContain("default-src 'self'");
   expect(csp).toContain("script-src 'self'");
   expect(csp).toContain("style-src 'self'");
+  expect(csp).not.toMatch(/style-src[^;]*unsafe-inline/);
   expect(csp).toContain("frame-ancestors 'none'");
 }
 

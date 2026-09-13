@@ -10,6 +10,15 @@ test.beforeEach(async () => {
   await flushTestRedis();
 });
 
+test("share form is the only view on load", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#share-password")).toBeVisible();
+  await expect(page.locator("#loading")).toBeHidden();
+  await expect(page.locator("#not-found")).toBeHidden();
+  await expect(page.locator("#confirm")).toBeHidden();
+  await expect(page.locator("#view")).toBeHidden();
+});
+
 test("creates a share link and reveals the password in a new tab", async ({
   page,
   context,
