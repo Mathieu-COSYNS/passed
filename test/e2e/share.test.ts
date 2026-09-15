@@ -332,6 +332,35 @@ test("a network failure during reveal still shows the error dialog", async ({
   await expect(tab.locator("#confirm")).toBeVisible();
 });
 
+test("a HEAD failure still shows a screen after the error dialog closes", async ({
+  page,
+  context,
+}) => {
+  const shareUrl = await createShareLink(page, "correct horse battery staple");
+  const tab = await context.newPage();
+  await tab.route("**/api/password/**", async (route) => {
+    if (route.request().method() === "HEAD") {
+      await route.abort("failed");
+      return;
+    }
+    await route.continue();
+  });
+
+  await tab.goto(shareUrl);
+  await expect(tab.locator("#error")).toBeVisible();
+  await tab.locator("#error-close").click();
+  await expect(tab.locator("#error")).toBeHidden();
+  await expect(tab.locator("#loading")).toBeHidden();
+
+  const visible = await Promise.all([
+    tab.locator("#share").isVisible(),
+    tab.locator("#confirm").isVisible(),
+    tab.locator("#not-found").isVisible(),
+    tab.locator("#view").isVisible(),
+  ]);
+  expect(visible.filter(Boolean).length).toBeGreaterThan(0);
+});
+
 test("shows an error when the secret cap is full", async ({ page }) => {
   await createShareLink(page, "first");
   await createShareLink(page, "second");

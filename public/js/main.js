@@ -220,6 +220,7 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
       confirm.classList.remove(hidden)
     } catch (e) {
       errorHandler(e)
+      showShare()
     } finally {
       loading.classList.add(hidden)
     }
