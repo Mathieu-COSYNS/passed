@@ -9,7 +9,6 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "prepare": "nitro prepare",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,16 +18,16 @@
     "@redis/client": "^6.2.1",
     "@t3-oss/env-core": "^0.13.11",
     "@upstash/redis": "^1.38.4",
-    "nitro": "3.0.260610-beta",
-    "zod": "^4.5.4"
+    "nitro": "3.0.260903-beta",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
-    "@types/node": "^24.13.3",
+    "@types/node": "^24.13.4",
     "nitro-test-utils": "^3.0.2",
     "playwright": "^1.63.0",
     "typescript": "^7.0.2",
-    "vite": "^8.2.2",
+    "vite": "^8.3.0",
     "vitest": "^5.0.0"
   },
   "engines": {

@@ -41,6 +41,9 @@ export async function createStore(config, maxSecrets) {
 export default defineConfig({
   serverDir: "src",
   compatibilityDate: "2026-01-01",
+  rolldownConfig: {
+    tsconfig: true,
+  },
   virtual: {
     "#passed/store": passedStoreVirtual,
   },
