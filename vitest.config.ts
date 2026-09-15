@@ -7,6 +7,10 @@ export default defineConfig(
     test: {
       dir: "./test",
       exclude: ["**/e2e/**"],
+      reporters:
+        process.env.GITHUB_ACTIONS === "true"
+          ? ["default", "github-actions"]
+          : ["default"],
       testTimeout: 15_000,
       env: {
         PASSED_MAX_SECRETS: String(TEST_MAX_SECRETS),

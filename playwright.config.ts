@@ -5,6 +5,7 @@ const E2E_ORIGIN = "http://127.0.0.1:4173";
 export default defineConfig({
   testDir: "./test/e2e",
   testMatch: "*.test.ts",
+  reporter: process.env.CI ? "github" : "list",
   fullyParallel: false,
   workers: 1,
   timeout: 30_000,
