@@ -14,9 +14,10 @@ export async function createShareLink(
   return shareUrl;
 }
 
-export async function waitForRevealOrError(page: Page): Promise<void> {
+export async function waitForRevealOutcome(page: Page): Promise<void> {
   await Promise.race([
     page.locator("#view-password").waitFor({ state: "visible" }),
+    page.locator("#not-found").waitFor({ state: "visible" }),
     page.locator("#error").waitFor({ state: "visible" }),
   ]);
 }

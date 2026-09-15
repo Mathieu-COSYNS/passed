@@ -240,6 +240,12 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
       }
 
       const encrypted = await backend.getPassword(id)
+      if (encrypted == null) {
+        resetView()
+        showNotFound()
+        return
+      }
+
       try {
         const password = await crypto.decryptPassword(encrypted, key, iv)
         showView(password)

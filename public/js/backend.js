@@ -52,10 +52,13 @@ class Backend {
 
   /**
    * @param {string} id Password id
-   * @returns {Promise<string>} Encrypted password
+   * @returns {Promise<string | null>} Encrypted password, or null if the share is gone
    */
   async getPassword(id) {
     const res = await fetch(`/api/password/${id}`)
+    if (res.status === 404) {
+      return null
+    }
     if (!res.ok) {
       const msg = await res.text()
       throw new Error(`Failed to get password: ${res.status}: ${msg}`)

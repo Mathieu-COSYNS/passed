@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   createShareLink,
   expectScreenshot,
-  waitForRevealOrError,
+  waitForRevealOutcome,
 } from "./utils.ts";
 import { flushTestRedis } from "../flush-redis.ts";
 
@@ -243,7 +243,10 @@ test("only one of two tabs can reveal the same share", async ({
     tab1.locator("#confirm-yes").click(),
     tab2.locator("#confirm-yes").click(),
   ]);
-  await Promise.all([waitForRevealOrError(tab1), waitForRevealOrError(tab2)]);
+  await Promise.all([
+    waitForRevealOutcome(tab1),
+    waitForRevealOutcome(tab2),
+  ]);
 
   const visible = await Promise.all(
     [tab1, tab2].map((tab) => tab.locator("#view-password").isVisible()),
@@ -253,8 +256,80 @@ test("only one of two tabs can reveal the same share", async ({
   const winner = visible[0] ? tab1 : tab2;
   const loser = visible[0] ? tab2 : tab1;
   await expect(winner.locator("#view-password")).toHaveValue(password);
-  await expect(loser.locator("#error")).toBeVisible();
-  await expect(loser.locator("#error-error")).toContainText("404");
+  await expect(loser.locator("#not-found")).toBeVisible();
+  await expect(loser.locator("#not-found-reasons")).toBeVisible();
+  await expect(loser.locator("#decrypt-failed")).toBeHidden();
+  await expect(loser.locator("#confirm")).toBeHidden();
+  await expect(loser.locator("#error")).toBeHidden();
+});
+
+test("confirming a share that was already consumed shows not-found", async ({
+  page,
+  context,
+}) => {
+  const password = "correct horse battery staple";
+  const shareUrl = await createShareLink(page, password);
+
+  const waiting = await context.newPage();
+  await waiting.goto(shareUrl);
+  await expect(waiting.locator("#confirm-yes")).toBeVisible();
+
+  const consumer = await context.newPage();
+  await consumer.goto(shareUrl);
+  await consumer.locator("#confirm-yes").click();
+  await expect(consumer.locator("#view-password")).toHaveValue(password);
+
+  await waiting.locator("#confirm-yes").click();
+  await expect(waiting.locator("#not-found")).toBeVisible();
+  await expect(waiting.locator("#not-found-reasons")).toBeVisible();
+  await expect(waiting.locator("#decrypt-failed")).toBeHidden();
+  await expect(waiting.locator("#confirm")).toBeHidden();
+  await expect(waiting.locator("#error")).toBeHidden();
+});
+
+test("a 500 during reveal still shows the error dialog", async ({
+  page,
+  context,
+}) => {
+  const shareUrl = await createShareLink(page, "correct horse battery staple");
+  const tab = await context.newPage();
+  await tab.route("**/api/password/**", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({ status: 500, body: "server error" });
+      return;
+    }
+    await route.continue();
+  });
+
+  await tab.goto(shareUrl);
+  await expect(tab.locator("#confirm-yes")).toBeVisible();
+  await tab.locator("#confirm-yes").click();
+  await expect(tab.locator("#error")).toBeVisible();
+  await expect(tab.locator("#error-error")).toContainText("500");
+  await expect(tab.locator("#not-found")).toBeHidden();
+  await expect(tab.locator("#confirm")).toBeVisible();
+});
+
+test("a network failure during reveal still shows the error dialog", async ({
+  page,
+  context,
+}) => {
+  const shareUrl = await createShareLink(page, "correct horse battery staple");
+  const tab = await context.newPage();
+  await tab.route("**/api/password/**", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.abort("failed");
+      return;
+    }
+    await route.continue();
+  });
+
+  await tab.goto(shareUrl);
+  await expect(tab.locator("#confirm-yes")).toBeVisible();
+  await tab.locator("#confirm-yes").click();
+  await expect(tab.locator("#error")).toBeVisible();
+  await expect(tab.locator("#not-found")).toBeHidden();
+  await expect(tab.locator("#confirm")).toBeVisible();
 });
 
 test("shows an error when the secret cap is full", async ({ page }) => {
