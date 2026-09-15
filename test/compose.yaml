@@ -1,0 +1,32 @@
+services:
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+  srh:
+    image: hiett/serverless-redis-http:latest
+    ports:
+      - "80"
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: passed-vitest
+      SRH_CONNECTION_STRING: redis://redis:6379/13
+    depends_on:
+      redis:
+        condition: service_healthy
+  srh-cap:
+    image: hiett/serverless-redis-http:latest
+    ports:
+      - "80"
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: passed-vitest
+      SRH_CONNECTION_STRING: redis://redis:6379/15
+    depends_on:
+      redis:
+        condition: service_healthy

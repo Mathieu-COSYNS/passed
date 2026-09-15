@@ -4,14 +4,13 @@ import { applyTestEnv } from "./test-env";
 
 applyTestEnv();
 
-const REDIS_URL =
-  process.env.PASSED_STORE_REDIS_URL ??
-  process.env.REDIS_URL ??
-  "redis://127.0.0.1:6379";
+const REDIS_URL = process.env.PASSED_STORE_REDIS_URL;
 
-const g = globalThis as typeof globalThis & {
-  __passedFlushRedis__?: boolean;
-};
+if (!REDIS_URL) {
+  throw new Error(
+    "Compose test runtime is missing. Run tests via pnpm test so globalSetup starts Docker Compose.",
+  );
+}
 
 export async function flushTestRedis(): Promise<void> {
   const redis = createClient({ url: REDIS_URL });
@@ -23,9 +22,9 @@ export async function flushTestRedis(): Promise<void> {
   }
 }
 
-// setupFiles re-run for every test file even with isolate: false.
-if (process.env.VITEST && !g.__passedFlushRedis__) {
-  g.__passedFlushRedis__ = true;
+// nitro-test-utils sets isolate: false. setupFiles re-run per file, and
+// beforeEach must be registered each time or later files never flush.
+if (process.env.VITEST) {
   beforeEach(async () => {
     await flushTestRedis();
   });

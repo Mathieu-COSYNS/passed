@@ -204,7 +204,7 @@ pnpm build
 pnpm preview
 ```
 
-`pnpm test` expects Redis at `PASSED_STORE_REDIS_URL` or `REDIS_URL` (default `redis://127.0.0.1:6379`). If nothing is listening, it starts `redis:8-alpine` with Docker.
+`pnpm test` and `pnpm test:e2e` require Docker. They always start Redis 8 and [Serverless Redis HTTP](https://upstash.com/docs/redis/sdks/ts/developing) with Docker Compose (`test/compose.yaml`), on random host ports, and never reuse a Redis or SRH already running on the machine.
 
 To build the image locally:
 
