@@ -35,6 +35,7 @@ test("a two-view link can be revealed twice then is gone", async ({
   await page.locator("select[name=view]").selectOption("2");
   await expectScreenshot(page, "share-form-two-views");
   await page.locator("#share-submit").click();
+  await page.locator("#share-dialog").waitFor({ state: "visible" });
   const shareUrl = await page.locator("#share-link").inputValue();
   expect(shareUrl).toContain("#");
 
