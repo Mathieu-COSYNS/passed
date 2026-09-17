@@ -9,7 +9,7 @@ export default defineHandler(async (event) => {
     throw new HTTPError({ status: 404 });
   }
 
-  const meta = await useStore().peekEncryptedSecret(id);
+  const meta = await (await useStore()).peekEncryptedSecret(id);
   if (meta == null) {
     throw new HTTPError({ status: 404 });
   }

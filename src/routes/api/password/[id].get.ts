@@ -9,7 +9,7 @@ export default defineHandler(async (event) => {
     throw new HTTPError({ status: 404 });
   }
 
-  const viewed = await useStore().viewEncryptedSecret(id);
+  const viewed = await (await useStore()).viewEncryptedSecret(id);
   if (viewed == null) {
     throw new HTTPError({ status: 404 });
   }

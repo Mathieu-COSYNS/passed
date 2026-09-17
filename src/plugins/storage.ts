@@ -2,28 +2,25 @@ import { definePlugin } from "nitro";
 import { createStore } from "#passed/store";
 import { env } from "~/env";
 import type { SecretStore } from "~/utils/store/common";
+import { createLazyStore } from "~/utils/store/lazy";
 
-let store: SecretStore | undefined;
-
-export function useStore(): SecretStore {
-  if (!store) {
-    throw new Error("store is not initialized");
-  }
-  return store;
-}
-
-export default definePlugin(async (nitroApp) => {
+const lazy = createLazyStore(async () => {
   const next = await createStore(env.store, env.PASSED_MAX_SECRETS);
   try {
     await next.ping();
+    return next;
   } catch (error) {
     await next.close();
     throw error;
   }
-  store = next;
+});
 
-  nitroApp.hooks.hook("close", () => {
-    store = undefined;
-    void next.close();
-  });
+export function useStore(): Promise<SecretStore> {
+  return lazy.get();
+}
+
+export default definePlugin((nitroApp) => {
+  void lazy.get();
+
+  nitroApp.hooks.hook("close", () => lazy.close());
 });

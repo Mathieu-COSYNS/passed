@@ -66,7 +66,7 @@ export default defineHandler(async (event) => {
   } = parsed.data;
 
   const id = generateShareId();
-  const stored = await useStore().setEncryptedSecret(
+  const stored = await (await useStore()).setEncryptedSecret(
     id,
     encryptedSecret,
     expiresIn,
