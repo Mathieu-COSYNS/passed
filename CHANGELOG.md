@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/Mathieu-COSYNS/passed/compare/v1.1.0...v1.2.0) (2026-09-17)
+
+
+### Features
+
+* display number of remaining views and expiry before and after opening a shared password ([3424244](https://github.com/Mathieu-COSYNS/passed/commit/3424244c0414dc650fb1d2b1e6b4f038d8a97a1f))
+* put expiry and views inputs side by side on desktop ([b8a97ca](https://github.com/Mathieu-COSYNS/passed/commit/b8a97caae5e42599e3971de28fb7afb9e0f9d3bc))
+
 ## [1.1.0](https://github.com/Mathieu-COSYNS/passed/compare/v1.0.0...v1.1.0) (2026-09-15)
 
 
