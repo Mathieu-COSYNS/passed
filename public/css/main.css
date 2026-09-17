@@ -2,6 +2,11 @@
   display: none;
 }
 
+.grid {
+  --pico-grid-row-gap: 0px;
+  margin-bottom: calc(var(--pico-spacing) * 0.375);
+}
+
 textarea {
   font-family: monospace;
 }

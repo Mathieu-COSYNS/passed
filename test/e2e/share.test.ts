@@ -19,6 +19,13 @@ test("share form is the only view on load", async ({ page }) => {
   await expect(page.locator("#view")).toBeHidden();
 });
 
+test("renders the share form on a small screen", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/");
+  await expect(page.locator("#share-submit")).toHaveText("Share");
+  await expectScreenshot(page, "share-form-small");
+});
+
 test("creates a share link and reveals the password in a new tab", async ({
   page,
   context,

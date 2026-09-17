@@ -77,38 +77,38 @@
 
       <form id="share-form">
         <fieldset id="share-fieldset">
-          <label>
-            <span t="password"></span>
-            <textarea name="password" id="share-password" autocomplete="off"></textarea>
-          </label>
+          <label for="share-password" t="password"></label>
+          <textarea name="password" id="share-password" autocomplete="off"></textarea>
 
-          <label>
-            <span t="expires-in"></span>
-            <select name="expires-in">
+          <div class="grid">
+            <div>
+              <label for="expires-in" t="expires-in"></label>
+              <select name="expires-in">
               <option value="3600" t="1-hour"></option>
-              <option value="43200" t="12-hours"></option>
-              <option value="86400" t="1-day" selected></option>
-              <option value="172800" t="2-days"></option>
-              <option value="604800" t="1-week"></option>
-              <option value="1209600" t="2-weeks"></option>
-            </select>
-          </label>
+                <option value="43200" t="12-hours"></option>
+                <option value="86400" t="1-day" selected></option>
+                <option value="172800" t="2-days"></option>
+                <option value="604800" t="1-week"></option>
+                <option value="1209600" t="2-weeks"></option>
+              </select>
+            </div>
 
-          <label>
-            <span t="views"></span>
-            <select name="view">
-              <option value="1" selected>1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-            </select>
-          </label>
+            <div>
+              <label for="views" t="views"></label>
+              <select name="view">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+          </div>
 
           <button type="submit" id="share-submit" t="share"></button>
           <span>
