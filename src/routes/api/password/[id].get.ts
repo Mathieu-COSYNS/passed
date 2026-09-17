@@ -9,10 +9,15 @@ export default defineHandler(async (event) => {
     throw new HTTPError({ status: 404 });
   }
 
-  const encryptedSecret = await useStore().viewEncryptedSecret(id);
-  if (encryptedSecret == null) {
+  const viewed = await useStore().viewEncryptedSecret(id);
+  if (viewed == null) {
     throw new HTTPError({ status: 404 });
   }
 
-  return Response.json(encryptedSecret);
+  return Response.json(viewed.encryptedSecret, {
+    headers: {
+      "X-Remaining-Views": String(viewed.remainingViews),
+      "X-Expires-In": String(viewed.expiresIn),
+    },
+  });
 });

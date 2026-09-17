@@ -17,9 +17,10 @@
   "no": "Non",
   "reveal-password": "Révéler le mot de passe",
   "reveal-password-once": "Vous ne pouvez révéler le mot de passe qu'une seule fois.",
+  "reveal-password-many": "Vous ne pouvez révéler le mot de passe que {x} fois.",
   "not-found": "Mot de passe introuvable",
   "not-found-reasons": "Le mot de passe demandé a peut-être expiré, a déjà été consulté, ou n'a jamais existé.",
-  "decrypt-failed": "Le mot de passe n'a pas pu être déchiffré. Ce partage a été consommé et n'est plus disponible.",
+  "decrypt-failed": "Le mot de passe n'a pas pu être déchiffré.",
   "source": "Code source",
   "language": "Langue",
   "dont-have-a-password": "Vous n'avez pas de mot de passe ?",
@@ -27,5 +28,7 @@
   "password-required": "Le mot de passe est requis",
   "expiry-invalid": "La durée d'expiration est invalide",
   "views": "Vues",
-  "reveal-password-notice": "Chaque révélation consomme une vue. Le lien est supprimé après la dernière vue restante."
+  "view-status-remaining": "Ce mot de passe expire {expiry} ou dans {count} vues.",
+  "view-status-remaining-one": "Ce mot de passe expire {expiry} ou dans {count} vue.",
+  "view-status-last": "Copiez le mot de passe avant de quitter. Il ne sera plus affiché."
 }

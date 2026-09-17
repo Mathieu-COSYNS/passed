@@ -41,6 +41,22 @@ function expectNoCache(res: Response): void {
   expect(res.headers.get("pragma")).toBe("no-cache");
 }
 
+function expectShareMeta(
+  res: Response,
+  remainingViews: number,
+  expiresIn?: { min: number; max: number },
+): void {
+  expect(res.headers.get("x-remaining-views")).toBe(String(remainingViews));
+  const expires = Number(res.headers.get("x-expires-in"));
+  expect(Number.isInteger(expires)).toBe(true);
+  if (expiresIn == null) {
+    expect(expires).toBeGreaterThanOrEqual(0);
+    return;
+  }
+  expect(expires).toBeGreaterThanOrEqual(expiresIn.min);
+  expect(expires).toBeLessThanOrEqual(expiresIn.max);
+}
+
 function expectSecurityHeaders(res: Response): void {
   expect(res.headers.get("x-content-type-options")).toBe("nosniff");
   expect(res.headers.get("referrer-policy")).toBe("no-referrer");
@@ -238,13 +254,16 @@ describe("HEAD /api/password/:id", () => {
     const head = await fetchApi(`/api/password/${id}`, { method: "HEAD" });
     expect(head.status).toBe(204);
     expectNoCache(head);
+    expectShareMeta(head, 1, { min: 3500, max: 3600 });
 
     const again = await fetchApi(`/api/password/${id}`, { method: "HEAD" });
     expect(again.status).toBe(204);
+    expectShareMeta(again, 1, { min: 3500, max: 3600 });
 
     const get = await fetchApi(`/api/password/${id}`);
     expect(get.status).toBe(200);
     await expect(get.json()).resolves.toBe("still-there");
+    expectShareMeta(get, 0, { min: 0, max: 0 });
   });
 
   it("returns 404 for an invalid id", async () => {
@@ -276,6 +295,7 @@ describe("GET /api/password/:id", () => {
     expect(first.status).toBe(200);
     expectNoCache(first);
     await expect(first.json()).resolves.toBe("one-time");
+    expectShareMeta(first, 0, { min: 0, max: 0 });
 
     const second = await fetchApi(`/api/password/${id}`);
     expect(second.status).toBe(404);
@@ -316,17 +336,21 @@ describe("GET /api/password/:id", () => {
     const first = await fetchApi(`/api/password/${id}`);
     expect(first.status).toBe(200);
     await expect(first.json()).resolves.toBe("multi");
+    expectShareMeta(first, 2, { min: 3500, max: 3600 });
 
     const head = await fetchApi(`/api/password/${id}`, { method: "HEAD" });
     expect(head.status).toBe(204);
+    expectShareMeta(head, 2, { min: 3500, max: 3600 });
 
     const second = await fetchApi(`/api/password/${id}`);
     expect(second.status).toBe(200);
     await expect(second.json()).resolves.toBe("multi");
+    expectShareMeta(second, 1, { min: 3500, max: 3600 });
 
     const third = await fetchApi(`/api/password/${id}`);
     expect(third.status).toBe(200);
     await expect(third.json()).resolves.toBe("multi");
+    expectShareMeta(third, 0, { min: 0, max: 0 });
 
     const gone = await fetchApi(`/api/password/${id}`);
     expect(gone.status).toBe(404);

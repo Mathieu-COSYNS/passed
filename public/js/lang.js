@@ -7,11 +7,13 @@ class Language {
   #allowedLanguages;
   #translationsCache;
   #currentLanguage;
+  #listeners;
 
   constructor() {
     this.#localStorageKey = "language";
     this.#allowedLanguages = ["en", "de", "fr", "nl"];
     this.#translationsCache = new Map();
+    this.#listeners = new Set();
     this.#currentLanguage = this.#resolveLanguage(
       localStorage.getItem(this.#localStorageKey),
     );
@@ -117,19 +119,46 @@ class Language {
   }
 
   /**
+   * Replaces `{name}` placeholders in `text` with `replacements[name]`.
+   * @param {string} text
+   * @param {Record<string, string | number> | undefined} replacements
+   * @returns {string}
+   */
+  #interpolate(text, replacements) {
+    if (replacements == null) {
+      return text;
+    }
+
+    let result = text;
+    for (const [name, value] of Object.entries(replacements)) {
+      result = result.replaceAll(`{${name}}`, String(value));
+    }
+    return result;
+  }
+
+  /**
    * Translation for `key` in the current language, or `key` if it is missing
    * or the language file cannot be loaded.
    * @param {string} key
+   * @param {Record<string, string | number>} [replacements]
    * @returns {Promise<string>}
    */
-  async t(key) {
+  async t(key, replacements) {
     try {
       const translations = await this.#loadTranslations(this.#currentLanguage);
-      return translations[key] ?? key;
+      return this.#interpolate(translations[key] ?? key, replacements);
     } catch (err) {
       console.error(err);
-      return key;
+      return this.#interpolate(key, replacements);
     }
+  }
+
+  /**
+   * Runs `listener` after translations are applied.
+   * @param {() => void} listener
+   */
+  onChange(listener) {
+    this.#listeners.add(listener);
   }
 
   /**
@@ -146,6 +175,9 @@ class Language {
       this.#currentLanguage = resolved;
       localStorage.setItem(this.#localStorageKey, resolved);
       this.#applyTranslations(translations);
+      for (const listener of this.#listeners) {
+        listener();
+      }
     } catch (err) {
       console.error(err);
     }

@@ -46,10 +46,17 @@ test("creates a share link and reveals the password in a new tab", async ({
   await tab.goto(shareUrl);
   await tab.locator("#confirm-yes").waitFor({ state: "visible" });
   await expect(tab.locator("#confirm-yes")).toHaveText("Yes");
+  await expect(tab.locator("#reveal-password-notice")).toHaveText(
+    "You may only reveal the password once.",
+  );
   await expectScreenshot(tab, "04-confirm-reveal");
 
   await tab.locator("#confirm-yes").click();
   await tab.locator("#view-password").waitFor({ state: "visible" });
+  await expect(tab.locator("#view-status")).toBeVisible();
+  await expect(tab.locator("#view-status")).toHaveText(
+    "Copy the password before you leave. It will not be shown again.",
+  );
   await expectScreenshot(tab, "05-password-revealed");
   await expect(tab.locator("#view-password")).toHaveValue(password);
 
@@ -102,6 +109,7 @@ test("reveals a password that contains line breaks", async ({
   await expect(tab.locator("#confirm-yes")).toHaveText("Yes");
   await tab.locator("#confirm-yes").click();
   await expect(tab.locator("#view-password")).toHaveValue(password);
+  await expect(tab.locator("#view-status")).toBeVisible();
   await expectScreenshot(tab, "multiline-password");
 });
 
@@ -114,6 +122,7 @@ test("reveals a password that contains unicode", async ({ page, context }) => {
   await expect(tab.locator("#confirm-yes")).toHaveText("Yes");
   await tab.locator("#confirm-yes").click();
   await expect(tab.locator("#view-password")).toHaveValue(password);
+  await expect(tab.locator("#view-status")).toBeVisible();
   await expectScreenshot(tab, "unicode-password");
 });
 

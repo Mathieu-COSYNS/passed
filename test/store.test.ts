@@ -49,9 +49,19 @@ function defineEncryptedSecretStoreTests(
       await store.setEncryptedSecret(id, "once", 3600);
 
       await expect(store.hasEncryptedSecret(id)).resolves.toBe(true);
-      await expect(store.viewEncryptedSecret(id)).resolves.toBe("once");
+      await expect(store.peekEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({ remainingViews: 1 }),
+      );
+      await expect(store.viewEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({
+          encryptedSecret: "once",
+          remainingViews: 0,
+          expiresIn: 0,
+        }),
+      );
       await expect(store.viewEncryptedSecret(id)).resolves.toBeNull();
       await expect(store.hasEncryptedSecret(id)).resolves.toBe(false);
+      await expect(store.peekEncryptedSecret(id)).resolves.toBeNull();
     });
 
     it("allows the configured number of views before deleting", async () => {
@@ -59,13 +69,63 @@ function defineEncryptedSecretStoreTests(
       const id = uniqueId("multiview");
       await store.setEncryptedSecret(id, "shared", 3600, 3);
 
-      await expect(store.viewEncryptedSecret(id)).resolves.toBe("shared");
+      await expect(store.peekEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({ remainingViews: 3 }),
+      );
+      await expect(store.viewEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({
+          encryptedSecret: "shared",
+          remainingViews: 2,
+        }),
+      );
       await expect(store.hasEncryptedSecret(id)).resolves.toBe(true);
-      await expect(store.viewEncryptedSecret(id)).resolves.toBe("shared");
+      await expect(store.peekEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({ remainingViews: 2 }),
+      );
+      await expect(store.viewEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({
+          encryptedSecret: "shared",
+          remainingViews: 1,
+        }),
+      );
       await expect(store.hasEncryptedSecret(id)).resolves.toBe(true);
-      await expect(store.viewEncryptedSecret(id)).resolves.toBe("shared");
+      await expect(store.viewEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({
+          encryptedSecret: "shared",
+          remainingViews: 0,
+          expiresIn: 0,
+        }),
+      );
       await expect(store.viewEncryptedSecret(id)).resolves.toBeNull();
       await expect(store.hasEncryptedSecret(id)).resolves.toBe(false);
+    });
+
+    it("peeks remaining views and TTL without consuming a view", async () => {
+      const store = getStore();
+      const id = uniqueId("peekmeta");
+      await store.setEncryptedSecret(id, "shared", 3600, 2);
+
+      const first = await store.peekEncryptedSecret(id);
+      expect(first).toEqual(
+        expect.objectContaining({ remainingViews: 2 }),
+      );
+      expect(first?.expiresIn).toBeGreaterThan(3500);
+      expect(first?.expiresIn).toBeLessThanOrEqual(3600);
+
+      const second = await store.peekEncryptedSecret(id);
+      expect(second).toEqual(
+        expect.objectContaining({ remainingViews: 2 }),
+      );
+
+      await expect(store.viewEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({
+          encryptedSecret: "shared",
+          remainingViews: 1,
+        }),
+      );
+      await expect(store.peekEncryptedSecret(id)).resolves.toEqual(
+        expect.objectContaining({ remainingViews: 1 }),
+      );
     });
 
     it("expires a share even when views remain", async () => {
@@ -88,7 +148,9 @@ function defineEncryptedSecretStoreTests(
         store.viewEncryptedSecret(id),
       ]);
 
-      expect(results.filter((value) => value === "once")).toHaveLength(1);
+      expect(
+        results.filter((value) => value?.encryptedSecret === "once"),
+      ).toHaveLength(1);
       expect(results.filter((value) => value == null)).toHaveLength(1);
       await expect(store.hasEncryptedSecret(id)).resolves.toBe(false);
     });
@@ -104,7 +166,9 @@ function defineEncryptedSecretStoreTests(
         store.viewEncryptedSecret(id),
       ]);
 
-      expect(results.filter((value) => value === "shared")).toHaveLength(2);
+      expect(
+        results.filter((value) => value?.encryptedSecret === "shared"),
+      ).toHaveLength(2);
       expect(results.filter((value) => value == null)).toHaveLength(1);
       await expect(store.hasEncryptedSecret(id)).resolves.toBe(false);
     });
@@ -158,7 +222,9 @@ function defineActiveSecretCapTests(options: {
         capped.setEncryptedSecret(uniqueId("free3"), "c", 3600),
       ).resolves.toBe(false);
 
-      await expect(capped.viewEncryptedSecret(first)).resolves.toBe("a");
+      await expect(capped.viewEncryptedSecret(first)).resolves.toEqual(
+        expect.objectContaining({ encryptedSecret: "a" }),
+      );
       await expect(
         capped.setEncryptedSecret(uniqueId("free4"), "d", 3600),
       ).resolves.toBe(true);
@@ -173,12 +239,16 @@ function defineActiveSecretCapTests(options: {
         capped.setEncryptedSecret(uniqueId("views2"), "b", 3600),
       ).resolves.toBe(true);
 
-      await expect(capped.viewEncryptedSecret(first)).resolves.toBe("a");
+      await expect(capped.viewEncryptedSecret(first)).resolves.toEqual(
+        expect.objectContaining({ encryptedSecret: "a" }),
+      );
       await expect(
         capped.setEncryptedSecret(uniqueId("views3"), "c", 3600),
       ).resolves.toBe(false);
 
-      await expect(capped.viewEncryptedSecret(first)).resolves.toBe("a");
+      await expect(capped.viewEncryptedSecret(first)).resolves.toEqual(
+        expect.objectContaining({ encryptedSecret: "a" }),
+      );
       await expect(
         capped.setEncryptedSecret(uniqueId("views4"), "d", 3600),
       ).resolves.toBe(true);

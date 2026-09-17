@@ -12,15 +12,35 @@ test("default share still allows only one reveal", async ({ page, context }) => 
 
   const tab = await context.newPage();
   await tab.goto(shareUrl);
-  await expect(tab.locator("#confirm p")).toHaveText(
-    "Revealing uses one view. The share is deleted after the last remaining view.",
+  await expect(tab.locator("#reveal-password-notice")).toHaveText(
+    "You may only reveal the password once.",
   );
   await tab.locator("#confirm-yes").click();
   await expect(tab.locator("#view-password")).toHaveValue(password);
+  await expect(tab.locator("#view-status")).toHaveText(
+    "Copy the password before you leave. It will not be shown again.",
+  );
 
   const consumed = await context.newPage();
   await consumed.goto(shareUrl);
   await expect(consumed.locator("#not-found")).toBeVisible();
+});
+
+test("confirm remaining views follow the selected language", async ({
+  page,
+  context,
+}) => {
+  const shareUrl = await createShareLink(page, "correct horse battery staple");
+  const tab = await context.newPage();
+  await tab.goto(shareUrl);
+  await expect(tab.locator("#reveal-password-notice")).toHaveText(
+    "You may only reveal the password once.",
+  );
+
+  await tab.locator("#language").selectOption("de");
+  await expect(tab.locator("#reveal-password-notice")).toHaveText(
+    "Sie können sich das Passwort nur einmal anschauen.",
+  );
 });
 
 test("a two-view link can be revealed twice then is gone", async ({
@@ -41,14 +61,26 @@ test("a two-view link can be revealed twice then is gone", async ({
 
   const first = await context.newPage();
   await first.goto(shareUrl);
+  await expect(first.locator("#reveal-password-notice")).toHaveText(
+    "You may only reveal the password 2 times.",
+  );
   await first.locator("#confirm-yes").click();
   await expect(first.locator("#view-password")).toHaveValue(password);
+  await expect(first.locator("#view-status")).toHaveText(
+    /This password expires in \d+ (day|days|hour|hours) or in 1 view, whichever comes first\./,
+  );
 
   const second = await context.newPage();
   await second.goto(shareUrl);
   await expect(second.locator("#confirm-yes")).toBeVisible();
+  await expect(second.locator("#reveal-password-notice")).toHaveText(
+    "You may only reveal the password once.",
+  );
   await second.locator("#confirm-yes").click();
   await expect(second.locator("#view-password")).toHaveValue(password);
+  await expect(second.locator("#view-status")).toHaveText(
+    "Copy the password before you leave. It will not be shown again.",
+  );
 
   const third = await context.newPage();
   await third.goto(shareUrl);

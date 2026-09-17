@@ -83,16 +83,38 @@ function initShare(errorHandler, backend, crypto, urlSplit, language) {
 }
 
 /**
+ * @param {number} seconds
+ * @param {string} locale
+ * @returns {string}
+ */
+function formatRelativeExpiry(seconds, locale) {
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "always" })
+  const value = Math.max(0, Math.floor(seconds))
+  if (value >= 86400) {
+    return rtf.format(Math.round(value / 86400), "day")
+  }
+  if (value >= 3600) {
+    return rtf.format(Math.round(value / 3600), "hour")
+  }
+  if (value >= 60) {
+    return rtf.format(Math.round(value / 60), "minute")
+  }
+  return rtf.format(value, "second")
+}
+
+/**
  * @param {(e: *) => void} errorHandler
  * @param {Backend} backend
  * @param {PasswordCrypto} crypto
  * @param {string} urlSplit
  * @param {string} hidden
+ * @param {Language} language
  */
-function initView(errorHandler, backend, crypto, urlSplit, hidden) {
+function initView(errorHandler, backend, crypto, urlSplit, hidden, language) {
   const share = document.querySelector("article#share")
   const loading = document.querySelector("article#loading")
   const confirm = document.querySelector("article#confirm")
+  const confirmNotice = document.querySelector("p#reveal-password-notice")
   const confirmNo = document.querySelector("button#confirm-no")
   const confirmYes = document.querySelector("button#confirm-yes")
   const notFound = document.querySelector("article#not-found")
@@ -101,11 +123,16 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
   const notFoundOk = document.querySelector("button#not-found-ok")
   const view = document.querySelector("article#view")
   const viewPassword = document.querySelector("textarea#view-password")
+  const viewStatus = document.querySelector("p#view-status")
   const viewOk = document.querySelector("button#view-ok")
 
   let id
   let key
   let iv
+  /** @type {number | null} */
+  let confirmRemaining = null
+  /** @type {{ remainingViews: number | null, expiresIn: number | null } | null} */
+  let viewMeta = null
 
   function hideAll() {
     share.classList.add(hidden)
@@ -121,9 +148,18 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     confirmYes.disabled = busy
   }
 
+  function clearStatusMessages() {
+    confirmRemaining = null
+    viewMeta = null
+    confirmNotice.textContent = ""
+    viewStatus.textContent = ""
+    viewStatus.classList.add(hidden)
+  }
+
   function resetView() {
     hideAll()
     viewPassword.value = ""
+    clearStatusMessages()
     setConfirmBusy(false)
     for (const dialog of document.querySelectorAll("dialog[open]")) {
       dialog.close()
@@ -133,6 +169,7 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
   function showShare() {
     hideAll()
     viewPassword.value = ""
+    clearStatusMessages()
     share.classList.remove(hidden)
   }
 
@@ -148,8 +185,66 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     notFound.classList.remove(hidden)
   }
 
-  function showView(password) {
+  /**
+   * @param {number | null} remainingViews
+   */
+  async function fillConfirmNotice(remainingViews) {
+    if (remainingViews == null) {
+      confirmNotice.textContent = ""
+      return
+    }
+
+    const key = remainingViews === 1
+      ? "reveal-password-once"
+      : "reveal-password-many"
+    confirmNotice.textContent = await language.t(key, { x: remainingViews })
+  }
+
+  /**
+   * @param {{ remainingViews: number | null, expiresIn: number | null }} meta
+   */
+  async function fillViewStatus(meta) {
+    let text = ""
+    if (meta.remainingViews != null && meta.remainingViews <= 0) {
+      text = await language.t("view-status-last")
+    } else if (meta.remainingViews != null && meta.expiresIn != null) {
+      const key = meta.remainingViews === 1
+        ? "view-status-remaining-one"
+        : "view-status-remaining"
+      text = await language.t(key, {
+        count: meta.remainingViews,
+        expiry: formatRelativeExpiry(meta.expiresIn, language.getLanguage()),
+      })
+    }
+
+    if (text === "") {
+      viewStatus.textContent = ""
+      viewStatus.classList.add(hidden)
+      return
+    }
+
+    viewStatus.textContent = text
+    viewStatus.classList.remove(hidden)
+  }
+
+  async function refreshDynamicMessages() {
+    if (!confirm.classList.contains(hidden)) {
+      await fillConfirmNotice(confirmRemaining)
+    }
+    if (!view.classList.contains(hidden) && viewMeta != null) {
+      await fillViewStatus(viewMeta)
+    }
+  }
+
+  /**
+   * @param {string} password
+   * @param {{ remainingViews: number | null, expiresIn: number | null }} meta
+   */
+  async function showView(password, meta) {
     viewPassword.value = password
+    viewMeta = meta
+    confirmRemaining = null
+    await fillViewStatus(meta)
     confirm.classList.add(hidden)
     view.classList.remove(hidden)
   }
@@ -211,12 +306,14 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     try {
       loading.classList.remove(hidden)
 
-      const has = await backend.hasPassword(id)
-      if (!has) {
+      const meta = await backend.getPasswordMeta(id)
+      if (meta == null) {
         showNotFound()
         return
       }
 
+      confirmRemaining = meta.remainingViews
+      await fillConfirmNotice(confirmRemaining)
       confirm.classList.remove(hidden)
     } catch (e) {
       errorHandler(e)
@@ -248,8 +345,8 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
       }
 
       try {
-        const password = await crypto.decryptPassword(encrypted, key, iv)
-        showView(password)
+        const password = await crypto.decryptPassword(encrypted.password, key, iv)
+        await showView(password, encrypted)
       } catch (decryptError) {
         console.error(decryptError)
         resetView()
@@ -262,6 +359,9 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden) {
     }
   }
 
+  language.onChange(() => {
+    void refreshDynamicMessages()
+  })
   notFoundOk.addEventListener("click", showShare)
   confirmNo.addEventListener("click", showShare)
   viewOk.addEventListener("click", showShare)
@@ -310,7 +410,7 @@ function init() {
   const urlSplit = ":"
 
   initShare(handleError, backend, crypto, urlSplit, language)
-  initView(handleError, backend, crypto, urlSplit, "hidden")
+  initView(handleError, backend, crypto, urlSplit, "hidden", language)
   initLanguage(language)
 }
 

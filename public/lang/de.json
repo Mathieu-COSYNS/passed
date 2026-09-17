@@ -17,9 +17,10 @@
   "no": "Nein",
   "reveal-password": "Passwort anzeigen",
   "reveal-password-once": "Sie können sich das Passwort nur einmal anschauen.",
+  "reveal-password-many": "Sie können sich das Passwort nur {x}-mal anschauen.",
   "not-found": "Passwort nicht gefunden",
   "not-found-reasons": "Das von Ihnen angefragte Passwort ist evtl. abgelaufen, wurde bereits angesehen oder hat noch nie existiert.",
-  "decrypt-failed": "Das Passwort konnte nicht entschlüsselt werden. Dieser Link wurde verbraucht und ist nicht mehr verfügbar.",
+  "decrypt-failed": "Das Passwort konnte nicht entschlüsselt werden.",
   "source": "Quellcode",
   "language": "Sprache",
   "dont-have-a-password": "Haben Sie kein Passwort?",
@@ -27,5 +28,7 @@
   "password-required": "Passwort ist erforderlich",
   "expiry-invalid": "Ablaufzeit ist ungültig",
   "views": "Ansichten",
-  "reveal-password-notice": "Jeder Abruf verbraucht eine Ansicht. Der Link wird nach der letzten Ansicht gelöscht."
+  "view-status-remaining": "Dieses Passwort läuft {expiry} oder nach {count} Ansichten ab, je nachdem, was zuerst eintritt.",
+  "view-status-remaining-one": "Dieses Passwort läuft {expiry} oder nach {count} Ansicht ab, je nachdem, was zuerst eintritt.",
+  "view-status-last": "Kopieren Sie das Passwort, bevor Sie die Seite verlassen. Es wird nicht erneut angezeigt."
 }

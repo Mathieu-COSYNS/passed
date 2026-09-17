@@ -83,8 +83,8 @@ test("failed decrypt shows a spent share instead of confirm", async ({
   await tab.locator("#confirm-yes").click();
   await expect(tab.locator("#not-found")).toBeVisible();
   await expect(tab.locator("#decrypt-failed")).toBeVisible();
-  await expect(tab.locator("#decrypt-failed")).toContainText(
-    "no longer available",
+  await expect(tab.locator("#decrypt-failed")).toHaveText(
+    "The password could not be decrypted.",
   );
   await expect(tab.locator("#confirm")).toBeHidden();
   await expect(tab.locator("#view")).toBeHidden();

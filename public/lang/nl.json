@@ -17,9 +17,10 @@
   "no": "Nee",
   "reveal-password": "Wachtwoord tonen",
   "reveal-password-once": "U kunt het wachtwoord slechts één keer bekijken.",
+  "reveal-password-many": "U kunt het wachtwoord slechts {x} keer bekijken.",
   "not-found": "Wachtwoord niet gevonden",
   "not-found-reasons": "Het aangevraagde wachtwoord is mogelijk verlopen, al bekeken of heeft nooit bestaan.",
-  "decrypt-failed": "Het wachtwoord kon niet worden ontsleuteld. Deze deellink is verbruikt en is niet meer beschikbaar.",
+  "decrypt-failed": "Het wachtwoord kon niet worden ontsleuteld.",
   "source": "Broncode",
   "language": "Taal",
   "dont-have-a-password": "Heeft u geen wachtwoord?",
@@ -27,5 +28,7 @@
   "password-required": "Wachtwoord is verplicht",
   "expiry-invalid": "Verlooptijd is ongeldig",
   "views": "Weergaven",
-  "reveal-password-notice": "Elke onthulling verbruikt één weergave. De link wordt na de laatste weergave verwijderd."
+  "view-status-remaining": "Dit wachtwoord verloopt {expiry} of na {count} weergaven, afhankelijk van wat het eerst komt.",
+  "view-status-remaining-one": "Dit wachtwoord verloopt {expiry} of na {count} weergave, afhankelijk van wat het eerst komt.",
+  "view-status-last": "Kopieer het wachtwoord voordat u weggaat. Het wordt niet opnieuw getoond."
 }

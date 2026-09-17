@@ -30,8 +30,30 @@ return 1
 `;
 
 /**
- * Atomically consume one view. Deletes the key on the last view. Returns the
- * ciphertext, or false if the share is missing.
+ * Read remaining views and TTL without consuming a view. Returns
+ * { remainingViews, expiresIn }, or false if the share is missing.
+ */
+const PEEK_SECRET_LUA = `
+local raw = redis.call('JSON.GET', KEYS[1])
+if not raw then
+  redis.call('ZREM', KEYS[2], ARGV[1])
+  return false
+end
+local remaining = tonumber(cjson.decode(raw).remainingViews)
+if remaining == nil or remaining < 1 then
+  return false
+end
+local ttl = redis.call('TTL', KEYS[1])
+if ttl < 0 then
+  ttl = 0
+end
+return cjson.encode({ remaining, ttl })
+`;
+
+/**
+ * Atomically consume one view. Deletes the key on the last view. Returns
+ * { ciphertext, remainingViews after consume, expiresIn }, or false if the
+ * share is missing.
  */
 const VIEW_SECRET_LUA = `
 local raw = redis.call('JSON.GET', KEYS[1])
@@ -40,14 +62,33 @@ if not raw then
   return false
 end
 local doc = cjson.decode(raw)
-if tonumber(doc.remainingViews) <= 1 then
+local remaining = tonumber(doc.remainingViews)
+if remaining == nil or remaining < 1 then
   redis.call('DEL', KEYS[1])
   redis.call('ZREM', KEYS[2], ARGV[1])
-else
-  redis.call('JSON.NUMINCRBY', KEYS[1], '$.remainingViews', -1)
+  return false
 end
-return doc.encryptedSecret
+if remaining <= 1 then
+  redis.call('DEL', KEYS[1])
+  redis.call('ZREM', KEYS[2], ARGV[1])
+  return cjson.encode({ doc.encryptedSecret, 0, 0 })
+end
+redis.call('JSON.NUMINCRBY', KEYS[1], '$.remainingViews', -1)
+local ttl = redis.call('TTL', KEYS[1])
+if ttl < 0 then
+  ttl = 0
+end
+return cjson.encode({ doc.encryptedSecret, remaining - 1, ttl })
 `;
+
+export type SecretMeta = {
+  remainingViews: number;
+  expiresIn: number;
+};
+
+export type ViewedSecret = SecretMeta & {
+  encryptedSecret: string;
+};
 
 export type SecretStore = {
   ping(): Promise<void>;
@@ -59,7 +100,8 @@ export type SecretStore = {
     views?: number,
   ): Promise<boolean>;
   hasEncryptedSecret(id: string): Promise<boolean>;
-  viewEncryptedSecret(id: string): Promise<string | null>;
+  peekEncryptedSecret(id: string): Promise<SecretMeta | null>;
+  viewEncryptedSecret(id: string): Promise<ViewedSecret | null>;
 };
 
 function secretKey(id: string): string {
@@ -78,6 +120,69 @@ function asSecret(result: unknown): string | null {
     return text.length > 0 ? text : null;
   }
   return null;
+}
+
+function asNonNegativeInt(value: unknown): number | null {
+  if (typeof value === "bigint") {
+    if (value < 0n || value > BigInt(Number.MAX_SAFE_INTEGER)) {
+      return null;
+    }
+    return Number(value);
+  }
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(n) || n < 0) {
+    return null;
+  }
+  return n;
+}
+
+function asTuple(result: unknown): unknown[] | null {
+  if (result == null || result === false) {
+    return null;
+  }
+  if (Array.isArray(result)) {
+    return result;
+  }
+  if (
+    typeof result === "string" ||
+    (typeof Buffer !== "undefined" && Buffer.isBuffer(result))
+  ) {
+    const text = typeof result === "string" ? result : result.toString("utf8");
+    try {
+      const parsed: unknown = JSON.parse(text);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function asSecretMeta(result: unknown): SecretMeta | null {
+  const tuple = asTuple(result);
+  if (tuple == null || tuple.length < 2) {
+    return null;
+  }
+  const remainingViews = asNonNegativeInt(tuple[0]);
+  const expiresIn = asNonNegativeInt(tuple[1]);
+  if (remainingViews == null || remainingViews < 1 || expiresIn == null) {
+    return null;
+  }
+  return { remainingViews, expiresIn };
+}
+
+function asViewedSecret(result: unknown): ViewedSecret | null {
+  const tuple = asTuple(result);
+  if (tuple == null || tuple.length < 3) {
+    return null;
+  }
+  const encryptedSecret = asSecret(tuple[0]);
+  const remainingViews = asNonNegativeInt(tuple[1]);
+  const expiresIn = asNonNegativeInt(tuple[2]);
+  if (encryptedSecret == null || remainingViews == null || expiresIn == null) {
+    return null;
+  }
+  return { encryptedSecret, remainingViews, expiresIn };
 }
 
 function asStored(result: unknown): boolean {
@@ -136,9 +241,16 @@ export abstract class RedisStore implements SecretStore {
     return this.exists(secretKey(id));
   }
 
-  async viewEncryptedSecret(id: string): Promise<string | null> {
+  async peekEncryptedSecret(id: string): Promise<SecretMeta | null> {
     await this.ready();
-    return asSecret(
+    return asSecretMeta(
+      await this.eval(PEEK_SECRET_LUA, [secretKey(id), INDEX_KEY], [id]),
+    );
+  }
+
+  async viewEncryptedSecret(id: string): Promise<ViewedSecret | null> {
+    await this.ready();
+    return asViewedSecret(
       await this.eval(VIEW_SECRET_LUA, [secretKey(id), INDEX_KEY], [id]),
     );
   }

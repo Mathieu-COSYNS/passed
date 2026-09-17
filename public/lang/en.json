@@ -17,9 +17,10 @@
   "no": "No",
   "reveal-password": "Reveal password",
   "reveal-password-once": "You may only reveal the password once.",
+  "reveal-password-many": "You may only reveal the password {x} times.",
   "not-found": "Password not found",
   "not-found-reasons": "The password you requested may have expired, been viewed before or never even existed in the first place.",
-  "decrypt-failed": "The password could not be decrypted. This share has been consumed and is no longer available.",
+  "decrypt-failed": "The password could not be decrypted.",
   "source": "Source",
   "language": "Language",
   "dont-have-a-password": "Don't have a password?",
@@ -27,5 +28,7 @@
   "password-required": "Password is required",
   "expiry-invalid": "Expiry is invalid",
   "views": "Views",
-  "reveal-password-notice": "Revealing uses one view. The share is deleted after the last remaining view."
+  "view-status-remaining": "This password expires {expiry} or in {count} views, whichever comes first.",
+  "view-status-remaining-one": "This password expires {expiry} or in {count} view, whichever comes first.",
+  "view-status-last": "Copy the password before you leave. It will not be shown again."
 }

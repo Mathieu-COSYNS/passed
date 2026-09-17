@@ -1,3 +1,27 @@
+const REMAINING_VIEWS_HEADER = "X-Remaining-Views"
+const EXPIRES_IN_HEADER = "X-Expires-In"
+
+/**
+ * @param {Headers} headers
+ * @param {string} name
+ * @returns {number | null}
+ */
+function headerInt(headers, name) {
+  const parsed = parseInt(headers.get(name), 10)
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null
+}
+
+/**
+ * @param {Headers} headers
+ * @returns {{ remainingViews: number | null, expiresIn: number | null }}
+ */
+function shareMeta(headers) {
+  return {
+    remainingViews: headerInt(headers, REMAINING_VIEWS_HEADER),
+    expiresIn: headerInt(headers, EXPIRES_IN_HEADER),
+  }
+}
+
 class Backend {
 
   constructor() { }
@@ -34,17 +58,18 @@ class Backend {
 
   /**
    * @param {string} id Password id
-   * @returns {Promise<bool>} If the password exists
+   * @returns {Promise<{ remainingViews: number | null, expiresIn: number | null } | null>}
+   *   Share metadata if it exists, or null if it is gone
    */
-  async hasPassword(id) {
+  async getPasswordMeta(id) {
     const res = await fetch(`/api/password/${id}`, {
       method: "HEAD",
     })
     switch (res.status) {
       case 204:
-        return true
+        return shareMeta(res.headers)
       case 404:
-        return false
+        return null
       default:
         throw new Error(`Failed to check if password exists: ${res.status}`)
     }
@@ -52,7 +77,8 @@ class Backend {
 
   /**
    * @param {string} id Password id
-   * @returns {Promise<string | null>} Encrypted password, or null if the share is gone
+   * @returns {Promise<{ password: string, remainingViews: number | null, expiresIn: number | null } | null>}
+   *   Encrypted password and remaining share metadata, or null if the share is gone
    */
   async getPassword(id) {
     const res = await fetch(`/api/password/${id}`)
@@ -65,6 +91,6 @@ class Backend {
     }
 
     const password = await res.json()
-    return password
+    return { password, ...shareMeta(res.headers) }
   }
 }
