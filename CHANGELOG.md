@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.0...v1.2.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* wait for store init on cold starts ([72e40ac](https://github.com/Mathieu-COSYNS/passed/commit/72e40ac70bdc15de41ff7d4a863595ec1afb8b4d))
+
 ## [1.2.0](https://github.com/Mathieu-COSYNS/passed/compare/v1.1.0...v1.2.0) (2026-09-17)
 
 
