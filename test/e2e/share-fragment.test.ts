@@ -57,6 +57,76 @@ test("extra fragment pieces are rejected without calling the API", async ({
   await expect(page.locator("#confirm-yes")).toBeVisible();
 });
 
+test("new share links use a 12-byte IV", async ({ page }) => {
+  const shareUrl = await createShareLink(page, "correct horse battery staple");
+  const { iv } = shareParts(shareUrl);
+  expect(Buffer.from(iv, "base64")).toHaveLength(12);
+});
+
+test("a link from before 1.1.0 with a 16-byte IV still opens", async ({ page }) => {
+  const password = "legacy secret";
+  await page.goto("/");
+  const shareUrl = await page.evaluate(async (plain) => {
+    const iv = crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.generateKey(
+      { name: "AES-GCM", length: 256 },
+      true,
+      ["encrypt", "decrypt"],
+    );
+    const rawKey = await crypto.subtle.exportKey("raw", key);
+    const encrypted = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      key,
+      new TextEncoder().encode(plain),
+    );
+    const toBase64 = (buffer: ArrayBuffer | Uint8Array) => {
+      const bytes = new Uint8Array(buffer);
+      let binary = "";
+      for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+      }
+      return btoa(binary);
+    };
+    const res = await fetch("/api/password", {
+      method: "POST",
+      body: JSON.stringify({
+        password: toBase64(encrypted),
+        "expires-in": 60,
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+    const id = await res.json();
+    const url = new URL(location.href);
+    url.hash = [id, toBase64(rawKey), toBase64(iv)].join(":");
+    url.search = "";
+    return url.toString();
+  }, password);
+
+  await page.goto(shareUrl);
+  await expect(page.locator("#confirm-yes")).toBeVisible();
+  await page.locator("#confirm-yes").click();
+  await expect(page.locator("#view-password")).toHaveValue(password);
+});
+
+test("an IV other than 12 or 16 bytes never calls the API", async ({
+  page,
+}) => {
+  const shareUrl = await createShareLink(page, "correct horse battery staple");
+  const { id, key } = shareParts(shareUrl);
+  const eightByteIv = Buffer.alloc(8).toString("base64");
+  const lookups = watchLookups(page);
+
+  await page.goto(withFragment(shareUrl, `${id}:${key}:${eightByteIv}`));
+  await expect(page.locator("#not-found")).toBeVisible();
+  await expect(page.locator("#confirm")).toBeHidden();
+  expect(lookups).toEqual([]);
+
+  await page.goto(shareUrl);
+  await expect(page.locator("#confirm-yes")).toBeVisible();
+});
+
 test("a well-formed share fragment still loads confirm", async ({ page }) => {
   const shareUrl = await createShareLink(page, "correct horse battery staple");
   const lookups = watchLookups(page);

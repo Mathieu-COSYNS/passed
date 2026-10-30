@@ -251,7 +251,9 @@ function initView(errorHandler, backend, crypto, urlSplit, hidden, language) {
 
   /**
    * Share fragments must be exactly `id:key:iv`. Extra `:` pieces are rejected.
-   * `id` is 24 letters; `key`/`iv` must decode as a 32-byte AES key and 12-byte IV.
+   * `id` is 24 letters; `key` must decode as a 32-byte AES key. `iv` must
+   * decode as a 12-byte IV, or a 16-byte IV kept for backward compatibility
+   * with versions prior to 1.1.0.
    * @param {string} raw
    * @returns {{ id: string, key: string, iv: string } | null}
    */

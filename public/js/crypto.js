@@ -6,6 +6,7 @@ class PasswordCrypto {
   #algorithmName
   #algorithmLength
   #ivLength
+  #acceptedIvLengths
 
   constructor() {
     this.#encoder = new TextEncoder()
@@ -13,7 +14,10 @@ class PasswordCrypto {
 
     this.#algorithmName = "AES-GCM"
     this.#algorithmLength = 256
+    /** IV length written into new share links. */
     this.#ivLength = 12
+    /** 16-byte IVs stay accepted for backward compatibility with versions prior to 1.1.0. */
+    this.#acceptedIvLengths = new Set([this.#ivLength, 16])
   }
 
   /**
@@ -71,12 +75,13 @@ class PasswordCrypto {
   }
 
   /**
-   * AES-GCM IV is 12 bytes of standard Base64.
+   * AES-GCM IV is standard Base64. New shares use 12 bytes.
+   * 16-byte IVs stay accepted for backward compatibility with versions prior to 1.1.0.
    * @param {string} iv
    * @returns {boolean}
    */
   isValidShareIv(iv) {
-    return this.#decodedByteLength(iv) === this.#ivLength
+    return this.#acceptedIvLengths.has(this.#decodedByteLength(iv))
   }
 
   /**
