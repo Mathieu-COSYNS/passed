@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.2...v1.2.3) (2026-10-30)
+
+
+### Continuous Integration
+
+* keep README image tags on the released version ([5c6af43](https://github.com/Mathieu-COSYNS/passed/commit/5c6af43e63ac8eef436764e03f6c732d895df79b))
+
 ## [1.2.2](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.1...v1.2.2) (2026-10-30)
 
 
