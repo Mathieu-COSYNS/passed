@@ -78,7 +78,7 @@ The image listens on port 3000 as the non-root `node` user (`PORT=3000` in the D
 <!-- x-release-please-start-version -->
 
 ```sh
-docker pull ghcr.io/mathieu-cosyns/passed:1.2.2
+docker pull ghcr.io/mathieu-cosyns/passed:1.2.3
 ```
 
 <!-- x-release-please-end -->
@@ -110,7 +110,7 @@ For production, require AUTH, use TLS (`rediss://`) when the connection leaves a
 docker run --rm -p 80:3000 \
   -e PASSED_STORE_TYPE=redis \
   -e PASSED_STORE_REDIS_URL=rediss://:YOUR_PASSWORD@redis.example.com:6379 \
-  ghcr.io/mathieu-cosyns/passed:1.2.2
+  ghcr.io/mathieu-cosyns/passed:1.2.3
 ```
 
 <!-- x-release-please-end -->
@@ -147,7 +147,7 @@ services:
       timeout: 3s
       retries: 10
   passed:
-    image: ghcr.io/mathieu-cosyns/passed:1.2.2
+    image: ghcr.io/mathieu-cosyns/passed:1.2.3
     ports:
       - "80:3000"
     environment:
@@ -171,7 +171,7 @@ To run the app container against local Compose Redis (no AUTH, host loopback onl
 docker run --rm -p 80:3000 \
   -e PASSED_STORE_TYPE=redis \
   -e PASSED_STORE_REDIS_URL=redis://host.docker.internal:6379 \
-  ghcr.io/mathieu-cosyns/passed:1.2.2
+  ghcr.io/mathieu-cosyns/passed:1.2.3
 ```
 
 <!-- x-release-please-end -->
@@ -189,13 +189,13 @@ docker run --rm -p 80:3000 \
   -e PASSED_STORE_TYPE=upstash \
   -e PASSED_STORE_UPSTASH_URL=https://example.upstash.io \
   -e PASSED_STORE_UPSTASH_TOKEN=... \
-  ghcr.io/mathieu-cosyns/passed:1.2.2
+  ghcr.io/mathieu-cosyns/passed:1.2.3
 ```
 
 ```yaml
 services:
   passed:
-    image: ghcr.io/mathieu-cosyns/passed:1.2.2
+    image: ghcr.io/mathieu-cosyns/passed:1.2.3
     ports:
       - "80:3000"
     environment:
