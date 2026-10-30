@@ -71,13 +71,17 @@ You can instead paste REST credentials yourself in **Settings → Environment Va
 
 ## Docker
 
-The published image is [`ghcr.io/mathieu-cosyns/passed`](https://github.com/Mathieu-COSYNS/passed/pkgs/container/passed). A GitHub Release `v1.0.0` (matching `package.json`) publishes `latest`, `1`, `1.0`, and `1.0.0` (a leading `v` on the git tag is stripped). Prereleases such as `v1.0.0-rc.1` get only that exact tag.
+The published image is [`ghcr.io/mathieu-cosyns/passed`](https://github.com/Mathieu-COSYNS/passed/pkgs/container/passed). A stable release tag `vX.Y.Z` (the `package.json` version) publishes `latest`, `X`, `X.Y`, and `X.Y.Z`. A leading `v` on the git tag is stripped. A prerelease such as `vX.Y.Z-rc.1` publishes only that exact tag.
 
 The image listens on port 3000 as the non-root `node` user (`PORT=3000` in the Dockerfile). Map host 80 to container 3000 (`-p 80:3000`). Put a reverse proxy with TLS in front in production.
 
+<!-- x-release-please-start-version -->
+
 ```sh
-docker pull ghcr.io/mathieu-cosyns/passed:1.0.0
+docker pull ghcr.io/mathieu-cosyns/passed:1.2.2
 ```
+
+<!-- x-release-please-end -->
 
 ## Storage backends
 
@@ -100,12 +104,18 @@ Local `compose.yaml` runs Redis 8 on `127.0.0.1` with no AUTH, and starts the ap
 
 For production, require AUTH, use TLS (`rediss://`) when the connection leaves a private network, or use managed Redis / [Upstash](#upstash) instead of an open `redis://` URL:
 
+<!-- x-release-please-start-version -->
+
 ```sh
 docker run --rm -p 80:3000 \
   -e PASSED_STORE_TYPE=redis \
   -e PASSED_STORE_REDIS_URL=rediss://:YOUR_PASSWORD@redis.example.com:6379 \
-  ghcr.io/mathieu-cosyns/passed:1.0.0
+  ghcr.io/mathieu-cosyns/passed:1.2.2
 ```
+
+<!-- x-release-please-end -->
+
+<!-- x-release-please-start-version -->
 
 ```yaml
 services:
@@ -137,7 +147,7 @@ services:
       timeout: 3s
       retries: 10
   passed:
-    image: ghcr.io/mathieu-cosyns/passed:1.0.0
+    image: ghcr.io/mathieu-cosyns/passed:1.2.2
     ports:
       - "80:3000"
     environment:
@@ -151,14 +161,20 @@ volumes:
   redis-data:
 ```
 
+<!-- x-release-please-end -->
+
 To run the app container against local Compose Redis (no AUTH, host loopback only):
+
+<!-- x-release-please-start-version -->
 
 ```sh
 docker run --rm -p 80:3000 \
   -e PASSED_STORE_TYPE=redis \
   -e PASSED_STORE_REDIS_URL=redis://host.docker.internal:6379 \
-  ghcr.io/mathieu-cosyns/passed:1.0.0
+  ghcr.io/mathieu-cosyns/passed:1.2.2
 ```
+
+<!-- x-release-please-end -->
 
 ### Upstash
 
@@ -166,18 +182,20 @@ Encrypted secrets are stored in an Upstash database.
 
 Upstash databases have a max data size per plan. With [eviction](https://upstash.com/docs/redis/features/eviction) off (the default), you cannot save new secrets ([`ERR DB capacity quota exceeded`](https://upstash.com/docs/redis/troubleshooting/db_capacity_quota_exceeded)), but existing links still work. If you enable eviction, Upstash removes secrets at random, so some links may stop working before anyone opens them. [Auto Upgrade](https://upstash.com/docs/redis/features/auto-upgrade), if enabled, can raise the plan so you can keep saving secrets.
 
+<!-- x-release-please-start-version -->
+
 ```sh
 docker run --rm -p 80:3000 \
   -e PASSED_STORE_TYPE=upstash \
   -e PASSED_STORE_UPSTASH_URL=https://example.upstash.io \
   -e PASSED_STORE_UPSTASH_TOKEN=... \
-  ghcr.io/mathieu-cosyns/passed:1.0.0
+  ghcr.io/mathieu-cosyns/passed:1.2.2
 ```
 
 ```yaml
 services:
   passed:
-    image: ghcr.io/mathieu-cosyns/passed:1.0.0
+    image: ghcr.io/mathieu-cosyns/passed:1.2.2
     ports:
       - "80:3000"
     environment:
@@ -185,6 +203,8 @@ services:
       PASSED_STORE_UPSTASH_URL: https://example.upstash.io
       PASSED_STORE_UPSTASH_TOKEN: ...
 ```
+
+<!-- x-release-please-end -->
 
 ## Migrate to a new server or storage backend without downtime
 
