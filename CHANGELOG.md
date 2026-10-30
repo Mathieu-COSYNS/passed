@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.1...v1.2.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* open share links created before the IV length changed in 1.1.0 ([dc6c095](https://github.com/Mathieu-COSYNS/passed/commit/dc6c095e09c191a22c1c158c18d6041c3f86a329))
+
 ## [1.2.1](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.0...v1.2.1) (2026-09-17)
 
 
