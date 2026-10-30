@@ -12,7 +12,7 @@ PassED solves this issue by allowing you to generate a URL with your password. L
 
 ![PassED screenshot](./test/e2e/share.test.ts-snapshots/01-share-form-dark-linux.png)
 
-The original [1e99/passed](https://git.1e99.eu/1e99/passed) repository currently appears to be down ([web archive](https://web.archive.org/web/20251118132530/https://git.1e99.eu/1e99/passed)). This TypeScript [Nitro](https://nitro.build) reimplementation was created to continue the idea.
+This project is a fork of [1e99/passed](https://git.1e99.eu/1e99/passed) at commit `7992f2bfca48785c5d9c8a5310b1dac6be8f1fd6`. The original repository currently appears to be down ([web archive](https://web.archive.org/web/20251118132530/https://git.1e99.eu/1e99/passed)). This TypeScript [Nitro](https://nitro.build) reimplementation was created to continue the idea.
 
 It is written in TypeScript so you can run it on serverless platforms such as [Vercel](#deploy-on-vercel), [Cloudflare](https://www.cloudflare.com), and [Netlify](https://www.netlify.com).
 
