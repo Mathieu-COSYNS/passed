@@ -186,6 +186,10 @@ services:
       PASSED_STORE_UPSTASH_TOKEN: ...
 ```
 
+## Migrate to a new server or storage backend without downtime
+
+[Migrate to a new server or storage backend without downtime](docs/migrate-server.md)
+
 ## Local development
 
 Requires Node.js 22+ and Redis 8+.
