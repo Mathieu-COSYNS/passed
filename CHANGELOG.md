@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/Mathieu-COSYNS/passed/compare/v1.3.0...v1.3.1) (2026-11-07)
+
+
+### Bug Fixes
+
+* docker build failed due to missing corepack in node 26 ([78b0834](https://github.com/Mathieu-COSYNS/passed/commit/78b0834dc0fce2e26d972fcb62fc3ad9aaa49a3c))
+
 ## [1.3.0](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.3...v1.3.0) (2026-11-07)
 
 
