@@ -15,11 +15,11 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@redis/client": "^6.2.1",
+    "@redis/client": "^6.3.1",
     "@t3-oss/env-core": "^0.13.11",
-    "@upstash/redis": "^1.38.4",
-    "nitro": "3.0.260903-beta",
-    "zod": "^4.6.5"
+    "@upstash/redis": "^1.41.0",
+    "nitro": "3.0.261103-rc",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
@@ -31,7 +31,7 @@
     "vitest": "^5.0.0"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.22.0"
   },
   "packageManager": "pnpm@12.4.2+sha512.08adc6613180275c7c9edada39dcf08c9c61ad4e7eaf330a4f3461f102b0f907423454d117f98e72d47fef0616070644d7bffc973a6a57f5090a6d7c368b07c9"
 }

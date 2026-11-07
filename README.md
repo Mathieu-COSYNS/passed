@@ -212,7 +212,7 @@ services:
 
 ## Local development
 
-Requires Node.js 22+ and Redis 8+.
+Requires Node.js 22.22+ and Redis 8+.
 
 ```sh
 docker compose up redis -d
