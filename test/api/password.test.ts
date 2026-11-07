@@ -1,5 +1,5 @@
 import { createClient } from "@redis/client";
-import { injectNitroFetch } from "nitro-test-utils/e2e";
+import { serverFetch } from "nitro";
 import { describe, expect, it } from "vitest";
 import { env } from "~/env";
 import { TEST_MAX_SECRETS } from "../test-env";
@@ -7,9 +7,7 @@ import { TEST_MAX_SECRETS } from "../test-env";
 const ORIGIN = "http://example.com";
 
 function fetchApi(path: string, init?: RequestInit): Promise<Response> {
-  return Promise.resolve(
-    injectNitroFetch()(new Request(`${ORIGIN}${path}`, init)),
-  );
+  return serverFetch(new Request(`${ORIGIN}${path}`, init));
 }
 
 function createBody(password: string, expiresIn: number, view?: number) {
