@@ -11,6 +11,28 @@ textarea {
   font-family: monospace;
 }
 
+/*
+ * Grow with the secret where the browser understands it. A fixed width is
+ * already set by Pico, so only the block size changes. Older browsers ignore
+ * the property and keep the default two-row box.
+ */
+@supports (field-sizing: content) {
+  textarea {
+    field-sizing: content;
+    min-height: calc(
+      2lh + var(--pico-form-element-spacing-vertical) * 2 +
+        var(--pico-border-width) * 2
+    );
+    max-height: min(
+      40vh,
+      calc(
+        12lh + var(--pico-form-element-spacing-vertical) * 2 +
+          var(--pico-border-width) * 2
+      )
+    );
+  }
+}
+
 button.link-like-button {
   display: inline;
   width: auto;
