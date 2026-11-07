@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.3...v1.3.0) (2026-11-07)
+
+
+### Features
+
+* grow password fields to fit multiline secrets ([c32bbc4](https://github.com/Mathieu-COSYNS/passed/commit/c32bbc4a0378e76a5f0b7491ca97df25b6be2520))
+
+
+### Bug Fixes
+
+* **deps:** update dependencies ([000639d](https://github.com/Mathieu-COSYNS/passed/commit/000639d3d1086a796783ecf6c74fcb159987c467))
+
 ## [1.2.3](https://github.com/Mathieu-COSYNS/passed/compare/v1.2.2...v1.2.3) (2026-10-30)
 
 
