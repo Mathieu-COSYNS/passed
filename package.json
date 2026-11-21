@@ -22,13 +22,13 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@playwright/test": "1.65.0",
+    "@playwright/test": "1.65.1",
     "@types/node": "^22.20.5",
-    "nitro-test-utils": "^4.0.1",
-    "playwright": "^1.65.0",
+    "nitro-test-utils": "^4.0.2",
+    "playwright": "^1.65.1",
     "typescript": "^7.0.2",
-    "vite": "^8.3.6",
-    "vitest": "^5.1.0"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   },
   "engines": {
     "node": ">=22.22.0"
