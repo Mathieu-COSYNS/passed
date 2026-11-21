@@ -51,6 +51,13 @@
       "semanticCommitScope": "deps"
     },
     {
+      "description": "Dockerfile frontend is build-only. A digest bump does not change the published image.",
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["docker/dockerfile"],
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
+    },
+    {
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
       "semanticCommitType": "chore",
