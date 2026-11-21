@@ -17,18 +17,15 @@ textarea {
  * the property and keep the default two-row box.
  */
 @supports (field-sizing: content) {
+  fieldset:has(textarea) {
+    min-inline-size: 0; /* Fix: textarea stretches the fieldset in Chrome */
+  }
+
   textarea {
     field-sizing: content;
     min-height: calc(
       2lh + var(--pico-form-element-spacing-vertical) * 2 +
         var(--pico-border-width) * 2
-    );
-    max-height: min(
-      40vh,
-      calc(
-        12lh + var(--pico-form-element-spacing-vertical) * 2 +
-          var(--pico-border-width) * 2
-      )
     );
   }
 }
