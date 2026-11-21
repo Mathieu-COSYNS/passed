@@ -4,7 +4,7 @@
 # (and TLS if the link is not private), or use managed Redis / Upstash. See the README Redis section.
 services:
   redis:
-    image: redis:8-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
+    image: redis:8-alpine@sha256:7958cfbb9d152f87dadfbc89f1b0b15938f0b81ff8982feb327476f4911935c3
     ports:
       - "127.0.0.1:6379:6379"
     command:
