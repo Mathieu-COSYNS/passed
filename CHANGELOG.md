@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.2](https://github.com/Mathieu-COSYNS/passed/compare/v1.3.1...v1.3.2) (2026-11-21)
+
+
+### Bug Fixes
+
+* **css:** adjust textarea styling for better compatibility in Chrome and remove max-height ([8245ab4](https://github.com/Mathieu-COSYNS/passed/commit/8245ab49c40c7ffe284a58856c99b39d6ddbd33d))
+* **deps:** update node.js to 6bd9ab4 ([b1492cf](https://github.com/Mathieu-COSYNS/passed/commit/b1492cf630ffb7940cbb053b64c264ea0569845d))
+* **deps:** update redis:8-alpine docker digest to 7958cfb ([14b8cd3](https://github.com/Mathieu-COSYNS/passed/commit/14b8cd36800deb2a7f237fbabf5be75bbefd6c0c))
+
 ## [1.3.1](https://github.com/Mathieu-COSYNS/passed/compare/v1.3.0...v1.3.1) (2026-11-07)
 
 
